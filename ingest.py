@@ -21,7 +21,7 @@ load_dotenv()
 
 # Constants
 TARGET_LANG_CONFIG = os.getenv("TARGET_LANGUAGE", "hin_Devn")  # Hindi by default
-NUM_SAMPLES = 50  # Number of query items to ingest (each has 10 passages)
+NUM_SAMPLES = 5  # Number of query items to ingest (each has 10 passages)
 VECTOR_INDEX_FILE = "vector_index.npz"
 
 # Map target language configuration to its specific parquet file in the repo

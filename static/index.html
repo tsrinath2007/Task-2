@@ -71,64 +71,106 @@
 </head>
 <body class="bg-[#0C3426] text-[#F3F1E7] min-h-screen font-body relative overflow-x-hidden">
 
-    <!-- Fixed Illustrated Background Layer (Sunset + Palm Trees + Wave Silhouettes) -->
-    <div class="fixed inset-0 -z-10 pointer-events-none overflow-hidden bg-gradient-to-b from-[#0C3426] to-[#164e3a]">
-        <!-- Full-screen Inline Background Vector Art (Original vector palm/sunset theme matching mockup) -->
-        <svg class="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1920 1080">
-            <!-- Warm Sunrise / Sunset Glow in center-left -->
-            <circle cx="850" cy="540" r="280" fill="url(#sun-grad)" opacity="0.85" />
+    <!-- Fixed Illustrated Background Layer (Sunset + Palm Trees + Beach Silhouettes) -->
+    <div class="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
+        <!-- Full-screen Inline Background Vector Art (Vibrant theme matching mockup) -->
+        <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1920 1080">
+            <!-- Sky Gradient (Rich Deep Green to Gold/Yellow) -->
+            <rect width="100%" height="100%" fill="url(#sky-grad)" />
             <defs>
-                <radialGradient id="sun-grad" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stop-color="#FFC93C" stop-opacity="0.8" />
-                    <stop offset="60%" stop-color="#FF2E7E" stop-opacity="0.2" />
-                    <stop offset="100%" stop-color="#0C3426" stop-opacity="0" />
+                <linearGradient id="sky-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#0C3426" />
+                    <stop offset="45%" stop-color="#16543C" />
+                    <stop offset="70%" stop-color="#2D7F5C" />
+                    <stop offset="90%" stop-color="#E2B31C" />
+                    <stop offset="100%" stop-color="#E2B31C" />
+                </linearGradient>
+                
+                <!-- Sun Radial Gradient for glowing edges -->
+                <radialGradient id="sun-glow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#FFC93C" />
+                    <stop offset="85%" stop-color="#FFC93C" />
+                    <stop offset="100%" stop-color="#E2B31C" stop-opacity="0" />
                 </radialGradient>
             </defs>
 
-            <!-- Ground/Beach curve at bottom -->
-            <path d="M -50,900 Q 300,820 900,920 Q 1500,990 2000,940 L 2000,1100 L -50,1100 Z" fill="#09271c" opacity="0.9" />
-            <!-- Secondary sand curve -->
-            <path d="M -50,930 Q 500,880 1100,950 Q 1600,990 2000,970 L 2000,1100 L -50,1100 Z" fill="#061c14" opacity="0.95" />
-
-            <!-- Stylized Beach Waves Lines -->
-            <path d="M 100,880 Q 350,840 600,890 M 750,905 Q 1000,875 1250,920 M 1350,930 Q 1600,910 1850,945" stroke="#9FB8AC" stroke-dasharray="10 15" stroke-width="1.5" fill="none" opacity="0.2" />
-
-            <!-- Left Palm Tree 1 -->
-            <g transform="translate(10, 300) scale(1.15)">
-                <path d="M 40,700 Q 120,400 90,100" stroke="#061c14" stroke-width="10" fill="none" />
-                <!-- Fronds -->
-                <path d="M 90,100 Q 10,120 -50,200" stroke="#0B3023" stroke-width="5" fill="none" />
-                <path d="M 90,100 Q 10,80 -70,120" stroke="#0E3D2D" stroke-width="6" fill="none" />
-                <path d="M 90,100 Q 20,40 -60,40" stroke="#0B3023" stroke-width="5" fill="none" />
-                <path d="M 90,100 Q 80,20 0,-10" stroke="#124E3A" stroke-width="6" fill="none" />
-                <path d="M 90,100 Q 130,20 70,-20" stroke="#0E3D2D" stroke-width="5" fill="none" />
-                <path d="M 90,100 Q 160,50 140,-10" stroke="#124E3A" stroke-width="6" fill="none" />
-                <path d="M 90,100 Q 170,110 230,120" stroke="#0B3023" stroke-width="5" fill="none" />
-                <path d="M 90,100 Q 150,150 190,220" stroke="#0E3D2D" stroke-width="6" fill="none" />
+            <!-- Bright Yellow Setting Sun in Center-Left (mockup coordinates) -->
+            <circle cx="850" cy="550" r="260" fill="url(#sun-glow)" />
+            
+            <!-- Sun rays / reflection lines on horizon -->
+            <g stroke="#FFC93C" stroke-width="3" opacity="0.6">
+                <line x1="500" y1="560" x2="1200" y2="560" />
+                <line x1="550" y1="580" x2="1150" y2="580" />
+                <line x1="600" y1="600" x2="1100" y2="600" stroke-width="2" />
+                <line x1="680" y1="620" x2="1020" y2="620" stroke-width="1.5" />
             </g>
 
-            <!-- Left Palm Tree 2 (Smaller, back) -->
-            <g transform="translate(-80, 420) scale(0.85)">
-                <path d="M 40,700 Q 100,450 70,200" stroke="#04120d" stroke-width="7" fill="none" />
-                <!-- Fronds -->
-                <path d="M 70,200 Q 0,220 -50,280" stroke="#072219" stroke-width="4" fill="none" />
-                <path d="M 70,200 Q 10,150 -60,180" stroke="#092d21" stroke-width="5" fill="none" />
-                <path d="M 70,200 Q 60,120 0,90" stroke="#072219" stroke-width="4" fill="none" />
-                <path d="M 70,200 Q 110,125 60,80" stroke="#092d21" stroke-width="5" fill="none" />
-                <path d="M 70,200 Q 130,160 180,210" stroke="#072219" stroke-width="4" fill="none" />
+            <!-- Ocean water layer at the bottom -->
+            <path d="M -50,750 Q 500,700 1100,740 Q 1600,780 2000,730 L 2000,1100 L -50,1100 Z" fill="#0C3426" />
+
+            <!-- Stylized White Ocean Waves on the Shore -->
+            <path d="M 50,770 C 300,740 600,795 900,760 C 1200,725 1500,790 1950,750" stroke="#FFFFFF" stroke-width="2" fill="none" opacity="0.4" />
+            <path d="M -20,790 C 250,760 550,815 850,780 C 1150,745 1450,810 1970,770" stroke="#FFFFFF" stroke-width="1.5" fill="none" opacity="0.3" stroke-dasharray="25 15" />
+
+            <!-- Beach Sand (Light Grayish Green at the bottom) -->
+            <path d="M -50,860 Q 400,800 1000,870 Q 1500,920 2000,850 L 2000,1100 L -50,1100 Z" fill="#A8BEB0" />
+            <path d="M -50,910 Q 500,850 1100,920 Q 1600,970 2000,900 L 2000,1100 L -50,1100 Z" fill="#D5DDD7" />
+
+            <!-- Beach House Silhouette at bottom right -->
+            <g fill="#082418" opacity="0.9">
+                <!-- House Body -->
+                <polygon points="1400,890 1480,840 1560,890 1560,980 1400,980" />
+                <polygon points="1540,910 1620,865 1700,910 1700,980 1540,980" />
+                <!-- Roofs -->
+                <polygon points="1380,890 1480,830 1580,890" fill="#051C12" />
+                <polygon points="1520,910 1620,855 1720,910" fill="#051C12" />
+                <!-- Surfboard leaning on house -->
+                <path d="M 1370,980 Q 1360,930 1375,900 Q 1390,930 1380,980 Z" fill="#FFC93C" />
             </g>
 
-            <!-- Right Palm Tree 1 -->
-            <g transform="translate(1720, 250) scale(1.2)">
-                <path d="M 120,700 Q 20,400 50,100" stroke="#061c14" stroke-width="10" fill="none" />
+            <!-- LEFT PALM TREES (Vibrant Green & Gold Highlights) -->
+            <!-- Palm Tree 1 (Large foreground left) -->
+            <g transform="translate(-80, 200) scale(1.35)">
+                <!-- Trunk -->
+                <path d="M 60,650 Q 160,350 110,80" stroke="#082418" stroke-width="14" fill="none" />
+                <!-- Fronds / Leaves -->
+                <path d="M 110,80 Q 30,100 -60,180" stroke="#155D3E" stroke-width="6" fill="none" />
+                <path d="M 110,80 Q 20,60 -80,100" stroke="#238D5D" stroke-width="8" fill="none" />
+                <path d="M 110,80 Q 40,20 -40,20" stroke="#155D3E" stroke-width="6" fill="none" />
+                <path d="M 110,80 Q 70,0 -10,-30" stroke="#3EB278" stroke-width="8" fill="none" />
+                <path d="M 110,80 Q 160,0 120,-40" stroke="#155D3E" stroke-width="6" fill="none" />
+                <path d="M 110,80 Q 180,30 160,-20" stroke="#3EB278" stroke-width="8" fill="none" />
+                <path d="M 110,80 Q 200,90 260,100" stroke="#155D3E" stroke-width="6" fill="none" />
+                <path d="M 110,80 Q 180,130 220,180" stroke="#238D5D" stroke-width="8" fill="none" />
+                <!-- Coconuts -->
+                <circle cx="95" cy="95" r="10" fill="#FFC93C" />
+                <circle cx="115" cy="100" r="9" fill="#FFC93C" />
+            </g>
+
+            <!-- Palm Tree 2 (Smaller background left) -->
+            <g transform="translate(-150, 320) scale(1.0)">
+                <!-- Trunk -->
+                <path d="M 50,700 Q 130,450 90,150" stroke="#051C12" stroke-width="9" fill="none" />
                 <!-- Fronds -->
-                <path d="M 50,100 Q -30,120 -90,200" stroke="#0B3023" stroke-width="5" fill="none" />
-                <path d="M 50,100 Q -20,70 -110,100" stroke="#0E3D2D" stroke-width="6" fill="none" />
-                <path d="M 50,100 Q 0,30 -60,20" stroke="#0B3023" stroke-width="5" fill="none" />
-                <path d="M 50,100 Q 40,20 -20,-20" stroke="#124E3A" stroke-width="6" fill="none" />
-                <path d="M 50,100 Q 90,20 150,-10" stroke="#0E3D2D" stroke-width="5" fill="none" />
-                <path d="M 50,100 Q 120,60 170,110" stroke="#124E3A" stroke-width="6" fill="none" />
-                <path d="M 50,100 Q 130,130 190,190" stroke="#0B3023" stroke-width="5" fill="none" />
+                <path d="M 90,150 Q 10,180 -50,230" stroke="#104E33" stroke-width="5" fill="none" />
+                <path d="M 90,150 Q 20,110 -60,130" stroke="#1C6B4F" stroke-width="7" fill="none" />
+                <path d="M 90,150 Q 80,70 10,40" stroke="#1C6B4F" stroke-width="6" fill="none" />
+                <path d="M 90,150 Q 145,75 100,30" stroke="#2E9E6B" stroke-width="7" fill="none" />
+                <path d="M 90,150 Q 160,120 200,160" stroke="#1C6B4F" stroke-width="6" fill="none" />
+            </g>
+
+            <!-- RIGHT PALM TREES (Vibrant Green & Gold Highlights) -->
+            <!-- Palm Tree 1 (Large foreground right) -->
+            <g transform="translate(1650, 180) scale(1.35)">
+                <!-- Trunk -->
+                <path d="M 140,650 Q 40,350 90,80" stroke="#082418" stroke-width="14" fill="none" />
+                <!-- Fronds -->
+                <path d="M 90,80 Q 10,100 -50,180" stroke="#155D3E" stroke-width="6" fill="none" />
+                <path d="M 90,80 Q 0,60 -80,100" stroke="#238D5D" stroke-width="8" fill="none" />
+                <path d="M 90,80 Q 20,20 -40,10" stroke="#3EB278" stroke-width="8" fill="none" />
+                <path d="M 90,80 Q 120,0 70,-40" stroke="#155D3E" stroke-width="6" fill="none" />
+                <path d="M 90,80 Q 160,30 140,-20" stroke="#3EB278" stroke-width="8" fill="none" />
+                <path d="M 90,80 Q 180,100 240,110" stroke="#155D3E" stroke-width="6" fill="none" />
             </g>
         </svg>
     </div>

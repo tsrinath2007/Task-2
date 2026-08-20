@@ -161,7 +161,7 @@ async function submitPipelineQuery(text, audioBlob) {
         }
         
         const data = await res.json();
-        renderPipelineResponse(data);
+        renderPipelineResponse(data, audioBlob);
         await updateAnalytics();
     } catch (err) {
         outResponse.innerHTML = `<span class="text-red-500 font-semibold"><i class="fa-solid fa-circle-exclamation"></i> Error: ${err.message}</span>`;
@@ -170,7 +170,7 @@ async function submitPipelineQuery(text, audioBlob) {
 }
 
 // Render dynamic responses and badges
-function renderPipelineResponse(data) {
+function renderPipelineResponse(data, audioBlob = null) {
     if (audioPlayback.classList.contains("hidden") && data.query_text) {
         outQuery.textContent = data.query_text;
     }

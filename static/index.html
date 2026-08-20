@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice RAG Dashboard — Tropical Tech</title>
+    <title>Hacker House — Voice RAG Dashboard</title>
     <!-- CSS & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts: Space Grotesk (Display), Inter (Body), JetBrains Mono (Technical Numbers) -->
+    <!-- Google Fonts: Space Grotesk (Display), Playfair Display (Logo), Inter (Body), JetBrains Mono (Technical Numbers) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
@@ -20,6 +20,7 @@
                 extend: {
                     fontFamily: {
                         display: ['Space Grotesk', 'sans-serif'],
+                        logo: ['Playfair Display', 'serif'],
                         body: ['Inter', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace'],
                     }
@@ -48,276 +49,346 @@
         .wave-bar:nth-child(7) { animation-delay: 0.3s; }
         .wave-bar:nth-child(8) { animation-delay: 0.15s; }
         
-        /* Respect prefers-reduced-motion standard */
         @media (prefers-reduced-motion: reduce) {
             .wave-bar, .pulse-glow {
                 animation: none !important;
             }
         }
 
-        /* Glassmorphism styling tokens */
+        /* Glassmorphism styling tokens from mockup */
         .glass-card {
             background: rgba(11, 20, 32, 0.85);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 201, 60, 0.15);
-            border-radius: 18px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border-radius: 20px;
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
         }
         
-        /* Status shadow glows */
         .glow-mint { box-shadow: 0 0 15px rgba(46, 217, 160, 0.3); }
         .glow-pink { box-shadow: 0 0 15px rgba(255, 46, 126, 0.3); }
         .glow-gold { box-shadow: 0 0 15px rgba(255, 201, 60, 0.3); }
     </style>
 </head>
-<body class="bg-[#0F3D2E] text-[#F3F1E7] min-h-screen font-body relative overflow-x-hidden">
+<body class="bg-[#0C3426] text-[#F3F1E7] min-h-screen font-body relative overflow-x-hidden">
 
-    <!-- Confident Fixed Background Layer (Tropical Deep Green + Warm Radial Sun Glow + Soundwave Line-art) -->
-    <div class="fixed inset-0 -z-10 pointer-events-none overflow-hidden bg-gradient-to-b from-[#0F3D2E] to-[#1A5C42]">
-        <!-- Radial Gold Warm Sunrise Glow behind hero section -->
-        <div class="absolute top-[-100px] left-[15%] w-[700px] h-[550px] rounded-full bg-gradient-to-tr from-[#FFC93C]/12 to-[#2ED9A0]/5 blur-[130px] pointer-events-none"></div>
-        
-        <!-- Inline Original Background Art: India Outline & Sound Waves -->
-        <svg class="absolute inset-0 w-full h-full opacity-25" xmlns="http://www.w3.org/2000/svg">
-            <!-- India Subcontinent Faint Line-art (off-center) -->
-            <g stroke="#FFC93C" stroke-width="1.2" fill="none" opacity="0.10" transform="translate(680, 80) scale(0.95)">
-                <path d="M 120,40 C 130,50 140,55 140,65 C 140,75 145,80 155,85 C 165,90 170,100 170,110 C 170,120 180,125 185,135 C 190,145 195,150 195,160 C 195,170 190,180 185,190 C 180,200 170,210 165,220 C 160,230 150,240 145,250 C 140,260 135,270 130,280 C 125,290 120,300 115,310 C 110,320 105,330 102,340 C 99,350 97,360 97,370 C 97,372 98,374 98,376 L 100,380 C 98,382 96,384 94,386 C 90,390 85,395 85,398 C 85,400 87,402 88,405 C 89,407 90,409 89,411 C 88,413 86,415 85,417 C 84,419 83,421 82,423 C 80,425 78,427 77,429 C 76,431 75,433 75,435 L 75,438 C 74,439 72,437 71,435 C 70,433 69,431 68,429 C 67,427 65,425 63,423 C 61,421 59,419 57,417 C 55,415 53,413 51,411 C 49,409 47,407 45,405 C 43,403 41,401 39,399 L 35,395 C 34,392 35,389 36,386 C 37,383 38,380 39,377 C 40,374 41,371 42,368 C 43,365 44,362 44,359 C 44,356 42,353 40,350 C 38,347 36,344 34,341 C 32,338 30,335 28,332 C 26,329 24,326 22,323 C 20,320 18,317 16,314 C 14,311 12,308 10,305 C 8,302 6,299 4,296 C 2,293 0,290 0,287 C 0,284 2,281 4,278 C 6,275 8,272 10,269 C 12,266 14,263 16,260 C 18,257 20,254 22,251 C 24,248 26,245 28,242 C 30,239 32,236 34,233 C 36,230 38,227 40,224 C 42,221 44,218 45,215 C 46,212 47,209 48,206 C 49,203 50,200 51,197 C 52,194 53,191 54,188 C 55,185 56,182 57,179 C 58,176 59,173 60,170 C 61,167 62,164 63,161 C 64,158 65,155 66,152 C 67,149 68,146 69,143 C 70,140 71,137 72,134 L 75,120 C 76,115 77,110 78,105 C 79,100 80,95 81,90 C 82,85 83,80 85,75 C 87,70 89,65 92,60 C 95,55 98,50 102,45 C 106,40 110,38 115,38 Z" />
+    <!-- Fixed Illustrated Background Layer (Sunset + Palm Trees + Wave Silhouettes) -->
+    <div class="fixed inset-0 -z-10 pointer-events-none overflow-hidden bg-gradient-to-b from-[#0C3426] to-[#164e3a]">
+        <!-- Full-screen Inline Background Vector Art (Original vector palm/sunset theme matching mockup) -->
+        <svg class="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1920 1080">
+            <!-- Warm Sunrise / Sunset Glow in center-left -->
+            <circle cx="850" cy="540" r="280" fill="url(#sun-grad)" opacity="0.85" />
+            <defs>
+                <radialGradient id="sun-grad" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#FFC93C" stop-opacity="0.8" />
+                    <stop offset="60%" stop-color="#FF2E7E" stop-opacity="0.2" />
+                    <stop offset="100%" stop-color="#0C3426" stop-opacity="0" />
+                </radialGradient>
+            </defs>
+
+            <!-- Ground/Beach curve at bottom -->
+            <path d="M -50,900 Q 300,820 900,920 Q 1500,990 2000,940 L 2000,1100 L -50,1100 Z" fill="#09271c" opacity="0.9" />
+            <!-- Secondary sand curve -->
+            <path d="M -50,930 Q 500,880 1100,950 Q 1600,990 2000,970 L 2000,1100 L -50,1100 Z" fill="#061c14" opacity="0.95" />
+
+            <!-- Stylized Beach Waves Lines -->
+            <path d="M 100,880 Q 350,840 600,890 M 750,905 Q 1000,875 1250,920 M 1350,930 Q 1600,910 1850,945" stroke="#9FB8AC" stroke-dasharray="10 15" stroke-width="1.5" fill="none" opacity="0.2" />
+
+            <!-- Left Palm Tree 1 -->
+            <g transform="translate(10, 300) scale(1.15)">
+                <path d="M 40,700 Q 120,400 90,100" stroke="#061c14" stroke-width="10" fill="none" />
+                <!-- Fronds -->
+                <path d="M 90,100 Q 10,120 -50,200" stroke="#0B3023" stroke-width="5" fill="none" />
+                <path d="M 90,100 Q 10,80 -70,120" stroke="#0E3D2D" stroke-width="6" fill="none" />
+                <path d="M 90,100 Q 20,40 -60,40" stroke="#0B3023" stroke-width="5" fill="none" />
+                <path d="M 90,100 Q 80,20 0,-10" stroke="#124E3A" stroke-width="6" fill="none" />
+                <path d="M 90,100 Q 130,20 70,-20" stroke="#0E3D2D" stroke-width="5" fill="none" />
+                <path d="M 90,100 Q 160,50 140,-10" stroke="#124E3A" stroke-width="6" fill="none" />
+                <path d="M 90,100 Q 170,110 230,120" stroke="#0B3023" stroke-width="5" fill="none" />
+                <path d="M 90,100 Q 150,150 190,220" stroke="#0E3D2D" stroke-width="6" fill="none" />
             </g>
-            
-            <!-- Thin gold wave lines flowing across edges -->
-            <g stroke="#FFC93C" stroke-width="1.2" fill="none" opacity="0.12">
-                <!-- Top Wave -->
-                <path d="M 0,50 C 150,110 300,10 450,70 C 600,130 750,20 900,80 C 1050,140 1200,40 1350,60 C 1500,80 1650,20 1800,50 C 1950,80 2100,30 2250,40" />
-                <!-- Bottom Wave -->
-                <path d="M 0,820 C 200,740 400,900 600,770 C 800,640 1000,860 1200,790 C 1400,720 1600,880 1800,820 C 2000,760 2200,840 2400,820" />
+
+            <!-- Left Palm Tree 2 (Smaller, back) -->
+            <g transform="translate(-80, 420) scale(0.85)">
+                <path d="M 40,700 Q 100,450 70,200" stroke="#04120d" stroke-width="7" fill="none" />
+                <!-- Fronds -->
+                <path d="M 70,200 Q 0,220 -50,280" stroke="#072219" stroke-width="4" fill="none" />
+                <path d="M 70,200 Q 10,150 -60,180" stroke="#092d21" stroke-width="5" fill="none" />
+                <path d="M 70,200 Q 60,120 0,90" stroke="#072219" stroke-width="4" fill="none" />
+                <path d="M 70,200 Q 110,125 60,80" stroke="#092d21" stroke-width="5" fill="none" />
+                <path d="M 70,200 Q 130,160 180,210" stroke="#072219" stroke-width="4" fill="none" />
+            </g>
+
+            <!-- Right Palm Tree 1 -->
+            <g transform="translate(1720, 250) scale(1.2)">
+                <path d="M 120,700 Q 20,400 50,100" stroke="#061c14" stroke-width="10" fill="none" />
+                <!-- Fronds -->
+                <path d="M 50,100 Q -30,120 -90,200" stroke="#0B3023" stroke-width="5" fill="none" />
+                <path d="M 50,100 Q -20,70 -110,100" stroke="#0E3D2D" stroke-width="6" fill="none" />
+                <path d="M 50,100 Q 0,30 -60,20" stroke="#0B3023" stroke-width="5" fill="none" />
+                <path d="M 50,100 Q 40,20 -20,-20" stroke="#124E3A" stroke-width="6" fill="none" />
+                <path d="M 50,100 Q 90,20 150,-10" stroke="#0E3D2D" stroke-width="5" fill="none" />
+                <path d="M 50,100 Q 120,60 170,110" stroke="#124E3A" stroke-width="6" fill="none" />
+                <path d="M 50,100 Q 130,130 190,190" stroke="#0B3023" stroke-width="5" fill="none" />
             </g>
         </svg>
     </div>
 
     <!-- Main Container -->
-    <div class="container mx-auto px-6 py-10 max-w-7xl relative">
+    <div class="container mx-auto px-6 py-8 max-w-7xl relative">
         
-        <!-- Header -->
-        <header class="mb-10 flex flex-col md:flex-row justify-between items-center gap-6 border-b border-white/10 pb-6">
-            <div>
-                <span class="text-xs uppercase tracking-widest text-[#9FB8AC] font-mono">HH Goa 2026 — Task 2</span>
-                <h1 class="text-4xl md:text-5xl font-display font-bold leading-none text-[#F3F1E7] mt-1">
-                    Ask in your voice. <br>Get <span class="text-[#FFC93C]">grounded answers.</span>
-                </h1>
-            </div>
-            <div class="flex items-center gap-3">
-                <span class="px-3.5 py-1.5 bg-[#2ED9A0]/10 text-[#2ED9A0] border border-[#2ED9A0]/30 rounded-full text-xs font-semibold flex items-center gap-2">
-                    <span class="h-2.5 w-2.5 rounded-full bg-[#2ED9A0] animate-pulse"></span>
-                    FastAPI Studio Online
+        <!-- Header: Logo and Get Your Voice Heard Button -->
+        <header class="mb-12 flex justify-between items-center pb-4">
+            <div class="flex items-center gap-1">
+                <!-- Hacker House Logo matching mockup styling -->
+                <span class="font-logo text-3xl font-bold tracking-tight text-[#FFC93C]">
+                    HACKER <span class="bg-[#FF2E7E] text-white px-2 py-0.5 rounded-md text-base font-body font-bold italic relative top-[-4px] mx-0.5">गोआ</span> HOUSE
                 </span>
+            </div>
+            <div>
+                <!-- Utility Call-To-Action Button with warning design stripes -->
+                <button class="relative bg-[#FFC93C] hover:bg-[#ffe180] text-[#0C3426] px-5 py-2.5 font-display font-bold uppercase tracking-wider text-xs shadow-md transition duration-200 focus:outline-none">
+                    Get your voice heard
+                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-[repeating-linear-gradient(45deg,#0C3426,#0C3426_4px,#FFC93C_4px,#FFC93C_8px)]"></div>
+                </button>
             </div>
         </header>
 
-        <!-- Main Content Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <!-- Mockup Layout: Hero Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch mb-12">
             
-            <!-- Left Column: Configs & Capture -->
-            <div class="lg:col-span-5 space-y-8">
-                
-                <!-- Configurations Panel -->
-                <div class="glass-card p-6">
-                    <div class="flex items-center gap-2 mb-6 border-b border-white/5 pb-3">
-                        <i class="fa-solid fa-sliders text-[#FFC93C]"></i>
-                        <h2 class="text-xs font-bold uppercase tracking-wider text-[#9FB8AC] font-mono">Harness Configurations</h2>
-                    </div>
+            <!-- Left Hero Card (Glass Panel) -->
+            <div class="lg:col-span-6 glass-card p-10 flex flex-col justify-between">
+                <div>
+                    <!-- Voice-Enabled RAG tag -->
+                    <span class="inline-block px-3.5 py-1.5 border border-[#FFC93C]/35 text-[#FFC93C] rounded-full text-[10px] font-bold font-mono tracking-widest uppercase mb-8">
+                        Voice-Enabled RAG
+                    </span>
                     
-                    <div class="space-y-6">
-                        <div>
-                            <label class="block text-xs font-semibold text-[#F3F1E7] mb-2 font-mono uppercase tracking-wider">Chunking Strategy</label>
-                            <select id="strategy" class="w-full bg-[#0F3D2E]/50 border border-white/15 rounded-lg px-4 py-3 text-sm text-[#F3F1E7] focus:outline-none focus:border-[#FFC93C] transition">
-                                <option value="sentence-aware">Sentence-Boundary Aware (Semantic)</option>
-                                <option value="fixed-overlap">Fixed-Size with Overlap (Baseline)</option>
-                                <option value="structure-aware">Structure-Aware (MSMARCO Pairs)</option>
+                    <!-- Headline Display Typography -->
+                    <h1 class="text-5xl md:text-6xl font-display font-bold leading-none text-[#F3F1E7] tracking-tight mb-6">
+                        Ask in your <br>voice. Get <br><span class="text-[#FFC93C]">grounded <br>answers.</span>
+                    </h1>
+                    
+                    <!-- Description -->
+                    <p class="text-[#9FB8AC] text-sm leading-relaxed max-w-lg mb-10">
+                        A cleaner, faster, more human way to explore knowledge — designed for the HH Goa build culture, with real-time voice capture and context-aware responses.
+                    </p>
+                </div>
+                
+                <!-- Bottom Feature Indicators -->
+                <div class="grid grid-cols-3 gap-4 border-t border-white/10 pt-6">
+                    <div>
+                        <span class="block text-xs font-bold text-[#F3F1E7]">Voice-first</span>
+                        <span class="block text-[9px] font-mono text-[#9FB8AC] uppercase tracking-wider mt-1">Hands-free Input</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-bold text-[#F3F1E7]">Grounded</span>
+                        <span class="block text-[9px] font-mono text-[#9FB8AC] uppercase tracking-wider mt-1">Evidence-backed</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-bold text-[#F3F1E7]">Fast</span>
+                        <span class="block text-[9px] font-mono text-[#9FB8AC] uppercase tracking-wider mt-1">Low-latency</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Hero Card (Live Studio - Input Area) -->
+            <div class="lg:col-span-6 glass-card p-10 flex flex-col justify-between min-h-[460px]">
+                <div>
+                    <!-- Card Header -->
+                    <div class="flex justify-between items-center mb-8 border-b border-white/5 pb-4">
+                        <span class="text-xs font-bold tracking-widest text-[#9FB8AC] font-mono">LIVE STUDIO</span>
+                        <span class="px-3.5 py-1 bg-[#2ED9A0]/10 text-[#2ED9A0] border border-[#2ED9A0]/35 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider">
+                            Query Ready
+                        </span>
+                    </div>
+
+                    <!-- Voice Controls Row -->
+                    <div class="flex flex-col sm:flex-row items-center gap-6 mb-8">
+                        <!-- Gold pill Speak now button -->
+                        <button id="record-btn" class="flex items-center gap-3.5 bg-[#FFC93C] hover:bg-[#ffe180] text-[#0C3426] px-8 py-4.5 rounded-full font-display font-bold uppercase tracking-wider text-sm shadow-md transition duration-200 transform hover:scale-105 active:scale-95 focus:outline-none w-full sm:w-auto justify-center">
+                            <i id="record-icon" class="fa-solid fa-microphone text-base"></i>
+                            <span id="record-status">Speak now</span>
+                        </button>
+
+                        <!-- Strategy selector styled as VOICE MODE -->
+                        <div class="w-full sm:w-48">
+                            <label class="block text-[9px] font-bold text-[#9FB8AC] uppercase tracking-widest mb-1.5 font-mono">Voice Mode</label>
+                            <select id="strategy" class="w-full bg-[#0C3426] border border-white/10 rounded-lg px-3 py-2 text-xs text-[#F3F1E7] focus:outline-none focus:border-[#FFC93C] transition">
+                                <option value="sentence-aware">Sentence-Aware (Semantic)</option>
+                                <option value="fixed-overlap">Fixed-Size Chunks</option>
+                                <option value="structure-aware">Structure-Aware Chunks</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-[#F3F1E7] mb-2 font-mono uppercase tracking-wider">Off-Topic Similarity Threshold</label>
-                            <div class="flex items-center gap-4">
-                                <input type="range" id="threshold" min="0.10" max="0.80" step="0.05" value="0.35" class="w-full h-1 bg-white/15 rounded-lg appearance-none cursor-pointer accent-[#FFC93C]">
-                                <span id="threshold-val" class="text-xs font-bold font-mono bg-[#0F3D2E] px-3 py-1.5 rounded-md text-[#FFC93C] border border-white/10 w-12 text-center">0.35</span>
-                            </div>
+                    </div>
+
+                    <!-- Timer and recording soundwave animation -->
+                    <div class="flex items-center gap-4 mb-4 justify-center">
+                        <div id="recording-time" class="text-xs text-[#FF2E7E] font-mono font-bold tracking-widest bg-black/45 px-3 py-1 rounded-full hidden">00:00</div>
+                        <div id="waveform" class="flex items-center gap-1.5 h-10 justify-center hidden">
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
                         </div>
                     </div>
-                </div>
+                    <audio id="audio-playback" class="w-full mb-6 hidden" controls></audio>
 
-                <!-- Voice Capture (Live Studio Panel) -->
-                <div class="glass-card p-6 min-h-[300px] flex flex-col justify-between relative overflow-hidden">
-                    <div class="flex items-center gap-2 mb-4 border-b border-white/5 pb-3">
-                        <i class="fa-solid fa-microphone text-[#FFC93C]"></i>
-                        <h2 class="text-xs font-bold uppercase tracking-wider text-[#9FB8AC] font-mono">Live Voice Capture (11Labs STT)</h2>
+                    <!-- OR TYPE Divider -->
+                    <div class="flex items-center my-6">
+                        <div class="flex-grow border-t border-white/10"></div>
+                        <span class="mx-4 text-[9px] font-bold text-[#9FB8AC] uppercase tracking-widest font-mono">OR TYPE</span>
+                        <div class="flex-grow border-t border-white/10"></div>
                     </div>
 
-                    <!-- Voice Pill Capture Trigger -->
-                    <div class="flex flex-col items-center justify-center my-6 space-y-4">
-                        <!-- Pill Shaped Mic Button -->
-                        <button id="record-btn" class="flex items-center gap-3.5 bg-[#FFC93C] hover:bg-[#ffe180] text-[#0F3D2E] px-7 py-4 rounded-full font-display font-bold uppercase tracking-wider shadow-lg transition duration-200 transform hover:scale-105 active:scale-95 focus:outline-none">
-                            <i id="record-icon" class="fa-solid fa-microphone text-lg"></i>
-                            <span id="record-status">Speak Now</span>
+                    <!-- Text input row -->
+                    <div class="flex gap-2 mb-6">
+                        <input type="text" id="query-text-input" placeholder="Type query here..." class="w-full bg-[#0C3426]/60 border border-white/10 rounded-lg px-4 py-3 text-sm text-[#F3F1E7] placeholder-[#9FB8AC]/40 focus:outline-none focus:border-[#FFC93C]">
+                        <button id="text-submit-btn" class="bg-[#FFC93C] hover:bg-[#ffe180] text-[#0C3426] px-6 py-3 rounded-lg text-sm font-bold shadow-md transition">
+                            Send
                         </button>
-                        
-                        <!-- Pulse timer -->
-                        <div id="recording-time" class="text-xs text-[#FF2E7E] font-mono font-bold tracking-widest bg-black/35 px-3 py-1 rounded-full hidden">00:00</div>
-                        
-                        <!-- Visual waveform animation -->
-                        <div id="waveform" class="flex items-center gap-1.5 h-12 justify-center hidden">
-                            <div class="wave-bar"></div>
-                            <div class="wave-bar"></div>
-                            <div class="wave-bar"></div>
-                            <div class="wave-bar"></div>
-                            <div class="wave-bar"></div>
-                            <div class="wave-bar"></div>
-                            <div class="wave-bar"></div>
-                            <div class="wave-bar"></div>
-                        </div>
-                    </div>
-
-                    <!-- Hidden play audio widget -->
-                    <audio id="audio-playback" class="w-full mt-2 hidden" controls></audio>
-
-                    <!-- Text input fallback -->
-                    <div class="border-t border-white/10 mt-6 pt-5">
-                        <label class="block text-[10px] font-bold text-[#9FB8AC] uppercase tracking-widest mb-2 font-mono">Or Text Fallback Input</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="query-text-input" placeholder="e.g. कॉर्पोरेशन क्या है?" class="w-full bg-[#0F3D2E]/40 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-[#F3F1E7] placeholder-[#9FB8AC]/40 focus:outline-none focus:border-[#FFC93C]">
-                            <button id="text-submit-btn" class="bg-[#FFC93C]/10 border border-[#FFC93C]/30 text-[#FFC93C] hover:bg-[#FFC93C]/20 px-5 rounded-lg text-sm font-semibold transition">
-                                Send
-                            </button>
-                        </div>
                     </div>
                 </div>
 
+                <!-- Clickable Suggested Chips -->
+                <div>
+                    <div class="flex flex-wrap gap-2.5">
+                        <span class="query-chip border border-[#FFC93C]/20 text-[#9FB8AC] hover:border-[#FFC93C]/60 hover:text-[#F3F1E7] text-[10px] px-3.5 py-1.5 rounded-full cursor-pointer transition duration-150">What is a corporation?</span>
+                        <span class="query-chip border border-[#FFC93C]/20 text-[#9FB8AC] hover:border-[#FFC93C]/60 hover:text-[#F3F1E7] text-[10px] px-3.5 py-1.5 rounded-full cursor-pointer transition duration-150">कॉर्पोरेशन क्या है?</span>
+                        <span class="query-chip border border-[#FFC93C]/20 text-[#9FB8AC] hover:border-[#FFC93C]/60 hover:text-[#F3F1E7] text-[10px] px-3.5 py-1.5 rounded-full cursor-pointer transition duration-150">बैरल ओ स्लाइम क्या है?</span>
+                        <span class="query-chip border border-[#FFC93C]/20 text-[#9FB8AC] hover:border-[#FFC93C]/60 hover:text-[#F3F1E7] text-[10px] px-3.5 py-1.5 rounded-full cursor-pointer transition duration-150">परिवर्तक को परीक्षण पाइप से बदलने की लागत</span>
+                    </div>
+                </div>
             </div>
 
-            <!-- Right Column: Results & Latency metrics -->
-            <div class="lg:col-span-7 space-y-8">
-                
-                <!-- Output Card -->
-                <div id="output-card" class="glass-card p-6 min-h-[220px] flex flex-col justify-between transition-all duration-300">
+        </div>
+
+        <!-- Hidden Config: off-topic similarity threshold (kept at bottom for access) -->
+        <div class="glass-card px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
+            <span class="text-xs font-mono text-[#9FB8AC]">Off-Topic Similarity Threshold:</span>
+            <div class="flex items-center gap-4 w-full sm:w-72">
+                <input type="range" id="threshold" min="0.10" max="0.80" step="0.05" value="0.35" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#FFC93C]">
+                <span id="threshold-val" class="text-xs font-bold font-mono bg-[#0C3426] px-2.5 py-1 rounded text-[#FFC93C] border border-white/5 w-10 text-center">0.35</span>
+            </div>
+        </div>
+
+        <!-- Results & Performance Analysis Panel (appears below grid) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
+            
+            <!-- Output response card -->
+            <div id="output-card" class="lg:col-span-6 glass-card p-6 min-h-[220px] flex flex-col justify-between transition-all duration-300">
+                <div>
+                    <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-[#9FB8AC] font-mono">Pipeline Output</span>
+                        <div id="guardrail-badges" class="flex gap-2">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <span class="text-[10px] font-bold text-[#9FB8AC] uppercase tracking-widest font-mono">Query Prompt:</span>
+                            <p id="out-query" class="text-[#F3F1E7] font-semibold italic mt-1">Waiting for input...</p>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-[#9FB8AC] uppercase tracking-widest font-mono">Grounded Generation Answer:</span>
+                            <p id="out-response" class="text-[#F3F1E7] font-medium text-base bg-[#0C3426]/50 p-4 rounded-xl border border-white/5 mt-2 leading-relaxed min-h-[70px]">
+                                Pipeline responses will appear here.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center text-xs text-[#9FB8AC] border-t border-white/5 pt-4 mt-6">
                     <div>
-                        <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-3">
-                            <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-cube text-[#FFC93C]"></i>
-                                <h2 class="text-xs font-bold uppercase tracking-wider text-[#9FB8AC] font-mono">Pipeline Response</h2>
-                            </div>
-                            <div id="guardrail-badges" class="flex gap-2">
-                                <!-- Rendered dynamically -->
-                            </div>
-                        </div>
-
-                        <div class="space-y-4">
-                            <div>
-                                <span class="text-[10px] font-bold text-[#9FB8AC] uppercase tracking-widest font-mono">Query Prompt:</span>
-                                <p id="out-query" class="text-[#F3F1E7] font-semibold italic mt-1 font-body">Waiting for input...</p>
-                            </div>
-                            <div>
-                                <span class="text-[10px] font-bold text-[#9FB8AC] uppercase tracking-widest font-mono font-mono">Grounded Generation Answer:</span>
-                                <p id="out-response" class="text-[#F3F1E7] font-medium text-lg bg-black/40 p-4 rounded-xl border border-white/5 mt-2 leading-relaxed min-h-[70px]">
-                                    Response content will render here.
-                                </p>
-                            </div>
-                        </div>
+                        <span>Core RAG Latency:</span>
+                        <span id="out-core-latency" class="font-bold text-[#FFC93C] font-mono ml-1">- ms</span>
                     </div>
-
-                    <div class="flex justify-between items-center text-xs text-[#9FB8AC] border-t border-white/10 pt-4 mt-6">
-                        <div>
-                            <span>Core RAG Latency:</span>
-                            <span id="out-core-latency" class="font-bold text-[#FFC93C] font-mono ml-1">- ms</span>
-                        </div>
-                        <div>
-                            <span>Total Latency (with STT):</span>
-                            <span id="out-total-latency" class="font-bold text-[#F3F1E7] font-mono ml-1">- ms</span>
-                        </div>
+                    <div>
+                        <span>Total Latency (with STT):</span>
+                        <span id="out-total-latency" class="font-bold text-[#F3F1E7] font-mono ml-1">- ms</span>
                     </div>
                 </div>
-
-                <!-- Latency timing visualizations -->
-                <div class="glass-card p-6 space-y-6">
-                    <div class="flex justify-between items-center border-b border-white/5 pb-3">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-gauge-high text-[#FFC93C]"></i>
-                            <h2 class="text-xs font-bold uppercase tracking-wider text-[#9FB8AC] font-mono">Latency Analytics (P50/P70/P100)</h2>
-                        </div>
-                        <button id="reset-btn" class="text-xs text-[#FF2E7E] hover:text-[#ff629c] font-semibold flex items-center gap-1">
-                            <i class="fa-solid fa-trash-can"></i> Clear Logs
-                        </button>
-                    </div>
-
-                    <!-- Target Bar Visualization -->
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-end text-xs font-mono text-[#9FB8AC]">
-                            <span>RAG Pathway latency</span>
-                            <span class="text-xs text-[#FF2E7E] uppercase font-bold tracking-widest">Limit: 200ms</span>
-                        </div>
-                        <div class="relative w-full h-4 bg-black/40 rounded-full border border-white/10 overflow-hidden">
-                            <!-- Fill bar: set width dynamically -->
-                            <div id="latency-bar-fill" class="h-full w-0 transition-all duration-500 bg-[#2ED9A0] rounded-full"></div>
-                            
-                            <!-- 200ms Target mark (positioned at 66% of the bar representing 0-300ms range) -->
-                            <div class="absolute top-0 bottom-0 left-[66.6%] w-[2px] bg-[#FF2E7E]"></div>
-                        </div>
-                        <div class="flex justify-between text-[9px] font-mono text-[#9FB8AC]/60 px-1">
-                            <span>0ms</span>
-                            <span>100ms</span>
-                            <span>200ms (Target)</span>
-                            <span>300ms+</span>
-                        </div>
-                    </div>
-
-                    <!-- Metrics Grid (Mono numerals) -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="bg-black/30 border border-white/5 rounded-xl p-4 flex flex-col justify-between">
-                            <span class="text-[9px] font-mono uppercase text-[#9FB8AC] tracking-wider">Median Delay (P50)</span>
-                            <span id="p50-val" class="text-2xl font-bold font-mono text-[#2ED9A0] mt-1">- ms</span>
-                        </div>
-                        <div class="bg-black/30 border border-white/5 rounded-xl p-4 flex flex-col justify-between">
-                            <span class="text-[9px] font-mono uppercase text-[#9FB8AC] tracking-wider">70th Percentile (P70)</span>
-                            <span id="p70-val" class="text-2xl font-bold font-mono text-[#FFC93C] mt-1">- ms</span>
-                        </div>
-                        <div class="bg-black/30 border border-white/5 rounded-xl p-4 flex flex-col justify-between">
-                            <span class="text-[9px] font-mono uppercase text-[#9FB8AC] tracking-wider">Worst Case (P100)</span>
-                            <span id="p100-val" class="text-2xl font-bold font-mono text-[#F3F1E7] mt-1">- ms</span>
-                        </div>
-                    </div>
-
-                    <!-- Breakdown chart canvas -->
-                    <div class="relative h-44 w-full bg-black/25 border border-white/5 rounded-xl p-4">
-                        <canvas id="latencyChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Reference Chunks Context -->
-                <div class="glass-card p-6">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b border-white/5 pb-3 mb-6">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-server text-[#FFC93C]"></i>
-                            <h2 class="text-xs font-bold uppercase tracking-wider text-[#9FB8AC] font-mono">Retrieved Context Passages</h2>
-                        </div>
-                        
-                        <!-- Legend -->
-                        <div class="flex gap-3 text-[9px] font-mono">
-                            <span class="px-2 py-0.5 border border-[#3B82F6] text-[#60A5FA] rounded">FIXED</span>
-                            <span class="px-2 py-0.5 border border-[#0D9488] text-[#2DD4BF] rounded">SEMANTIC</span>
-                            <span class="px-2 py-0.5 border border-[#D97706] text-[#FBBF24] rounded font-semibold">METADATA</span>
-                        </div>
-                    </div>
-
-                    <div id="chunks-container" class="space-y-4 max-h-[350px] overflow-y-auto pr-2">
-                        <p class="text-gray-500 italic text-sm text-center py-8">No passages retrieved yet. Submit a query to see grounding details.</p>
-                    </div>
-                </div>
-
             </div>
 
+            <!-- Latency stats & charts -->
+            <div class="lg:col-span-6 glass-card p-6 space-y-6">
+                <div class="flex justify-between items-center border-b border-white/5 pb-3">
+                    <span class="text-xs font-bold uppercase tracking-wider text-[#9FB8AC] font-mono">Timing Metrics</span>
+                    <button id="reset-btn" class="text-xs text-[#FF2E7E] hover:text-[#ff629c] font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-trash-can"></i> Clear Logs
+                    </button>
+                </div>
+
+                <!-- Latency Target Bar -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-end text-xs font-mono text-[#9FB8AC]">
+                        <span>RAG Pathway latency</span>
+                        <span class="text-xs text-[#FF2E7E] uppercase font-bold tracking-widest font-bold">Target Limit: 200ms</span>
+                    </div>
+                    <div class="relative w-full h-4 bg-black/40 rounded-full border border-white/5 overflow-hidden">
+                        <!-- Fill bar -->
+                        <div id="latency-bar-fill" class="h-full w-0 transition-all duration-500 bg-[#2ED9A0] rounded-full"></div>
+                        <!-- Limit Marker -->
+                        <div class="absolute top-0 bottom-0 left-[66.6%] w-[2px] bg-[#FF2E7E]"></div>
+                    </div>
+                    <div class="flex justify-between text-[9px] font-mono text-[#9FB8AC]/60 px-1">
+                        <span>0ms</span>
+                        <span>100ms</span>
+                        <span>200ms Limit</span>
+                        <span>300ms+</span>
+                    </div>
+                </div>
+
+                <!-- P50 / P70 / P100 cards -->
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-[#0C3426]/50 border border-white/5 rounded-xl p-3 flex flex-col justify-between">
+                        <span class="text-[9px] font-mono uppercase text-[#9FB8AC] tracking-wider">P50 RAG</span>
+                        <span id="p50-val" class="text-xl font-bold font-mono text-[#2ED9A0] mt-1">- ms</span>
+                    </div>
+                    <div class="bg-[#0C3426]/50 border border-white/5 rounded-xl p-3 flex flex-col justify-between">
+                        <span class="text-[9px] font-mono uppercase text-[#9FB8AC] tracking-wider">P70 RAG</span>
+                        <span id="p70-val" class="text-xl font-bold font-mono text-[#FFC93C] mt-1">- ms</span>
+                    </div>
+                    <div class="bg-[#0C3426]/50 border border-white/5 rounded-xl p-3 flex flex-col justify-between">
+                        <span class="text-[9px] font-mono uppercase text-[#9FB8AC] tracking-wider">P100 RAG</span>
+                        <span id="p100-val" class="text-xl font-bold font-mono text-[#F3F1E7] mt-1">- ms</span>
+                    </div>
+                </div>
+
+                <!-- Delay breakdown chart -->
+                <div class="relative h-44 w-full bg-black/25 border border-white/5 rounded-xl p-4">
+                    <canvas id="latencyChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Retrieved Passages Context -->
+        <div class="glass-card p-6">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b border-white/5 pb-3 mb-6">
+                <span class="text-xs font-bold uppercase tracking-wider text-[#9FB8AC] font-mono">Retrieved Context Passages</span>
+                
+                <!-- Legend -->
+                <div class="flex gap-3 text-[9px] font-mono">
+                    <span class="px-2 py-0.5 border border-[#3B82F6] text-[#60A5FA] rounded">FIXED</span>
+                    <span class="px-2 py-0.5 border border-[#0D9488] text-[#2DD4BF] rounded">SEMANTIC</span>
+                    <span class="px-2 py-0.5 border border-[#D97706] text-[#FBBF24] rounded font-semibold">METADATA</span>
+                </div>
+            </div>
+
+            <div id="chunks-container" class="space-y-4 max-h-[350px] overflow-y-auto pr-2">
+                <p class="text-gray-500 italic text-sm text-center py-8">No passages retrieved yet. Submit a query to see grounding details.</p>
+            </div>
         </div>
 
     </div>
 
     <!-- Script Entry -->
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=4"></script>
 </body>
 </html>

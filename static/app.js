@@ -422,6 +422,17 @@ if (resetBtn) {
     });
 }
 
+// Suggested chips click binding to populate text input and trigger query
+document.querySelectorAll(".query-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+        if (queryTextInput) {
+            const text = chip.textContent.trim();
+            queryTextInput.value = text;
+            submitPipelineQuery(text, null);
+        }
+    });
+});
+
 // Setup audio and analytics on load
 setupRecorder();
 updateAnalytics();

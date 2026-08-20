@@ -4,6 +4,7 @@ let isRecording = false;
 let recordStartTime;
 let timerInterval;
 let chartInstance = null;
+let latestAudioBlob = null; // Stably store recorded blob to prevent closure bugs
 
 // DOM Elements
 const recordBtn = document.getElementById("record-btn");
@@ -27,11 +28,14 @@ const p70Val = document.getElementById("p70-val");
 const p100Val = document.getElementById("p100-val");
 const resetBtn = document.getElementById("reset-btn");
 const outputCard = document.getElementById("output-card");
+const waveform = document.getElementById("waveform");
 
-// Initialize listeners
-thresholdInput.addEventListener("input", (e) => {
-    thresholdVal.textContent = e.target.value;
-});
+// Initialize threshold label
+if (thresholdInput && thresholdVal) {
+    thresholdInput.addEventListener("input", (e) => {
+        thresholdVal.textContent = e.target.value;
+    });
+}
 
 // Setup audio recorder
 async function setupRecorder() {
@@ -46,37 +50,43 @@ async function setupRecorder() {
         };
 
         mediaRecorder.onstop = async () => {
+            // Securely create and store the latest audio blob
             const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
             audioChunks = [];
+            latestAudioBlob = audioBlob;
             
             // Set audio player playback source
-            const audioUrl = URL.createObjectURL(audioBlob);
+            const audioUrl = URL.createObjectURL(latestAudioBlob);
             audioPlayback.src = audioUrl;
             audioPlayback.classList.remove("hidden");
 
             // Process recording and execute pipeline
-            await submitPipelineQuery(null, audioBlob);
+            await submitPipelineQuery(null, latestAudioBlob);
         };
     } catch (err) {
         console.error("Error accessing microphone:", err);
         recordStatus.textContent = "Mic access blocked";
         recordBtn.disabled = true;
-        recordBtn.classList.replace("bg-indigo-600", "bg-gray-600");
+        recordBtn.classList.remove("bg-[#FFC93C]");
+        recordBtn.classList.add("bg-gray-700", "text-gray-400", "cursor-not-allowed");
     }
 }
 
-// Start recording
+// Start recording (updates styles to active red-pink pill, starts visual wave animation)
 function startRecording() {
     isRecording = true;
     audioChunks = [];
+    latestAudioBlob = null;
     mediaRecorder.start();
     
-    // UI state
-    recordBtn.classList.replace("bg-indigo-600", "bg-red-600");
-    recordBtn.classList.add("animate-pulse");
-    recordIcon.className = "fa-solid fa-square text-3xl";
-    recordStatus.textContent = "Listening... Click to stop";
+    // UI state: Turn to warning pink-red, start waveform pulse
+    recordBtn.classList.remove("bg-[#FFC93C]", "text-[#0F3D2E]", "hover:bg-[#ffe180]");
+    recordBtn.classList.add("bg-[#FF2E7E]", "text-white", "hover:bg-[#ff5294]", "animate-pulse");
+    recordIcon.className = "fa-solid fa-square text-lg";
+    recordStatus.textContent = "Stop Listening";
     recordingTime.classList.remove("hidden");
+    if (waveform) waveform.classList.remove("hidden");
+    audioPlayback.classList.add("hidden");
     
     // Timer
     recordStartTime = Date.now();
@@ -88,55 +98,63 @@ function startRecording() {
     }, 1000);
 }
 
-// Stop recording
+// Stop recording (reverts back to gold pill, hides waveform)
 function stopRecording() {
     isRecording = false;
     mediaRecorder.stop();
     
-    // Reset UI state
-    recordBtn.classList.replace("bg-red-600", "bg-indigo-600");
-    recordBtn.classList.remove("animate-pulse");
-    recordIcon.className = "fa-solid fa-microphone text-4xl";
-    recordStatus.textContent = "Transcribing speech...";
+    // Revert UI State back to Gold
+    recordBtn.classList.remove("bg-[#FF2E7E]", "text-white", "hover:bg-[#ff5294]", "animate-pulse");
+    recordBtn.classList.add("bg-[#FFC93C]", "text-[#0F3D2E]", "hover:bg-[#ffe180]");
+    recordIcon.className = "fa-solid fa-microphone text-lg";
+    recordStatus.textContent = "Transcribing...";
     recordingTime.classList.add("hidden");
+    if (waveform) waveform.classList.add("hidden");
     clearInterval(timerInterval);
 }
 
-recordBtn.addEventListener("click", () => {
-    if (!mediaRecorder) {
-        setupRecorder().then(() => {
-            if (mediaRecorder) startRecording();
-        });
-        return;
-    }
-    
-    if (isRecording) {
-        stopRecording();
-    } else {
-        startRecording();
-    }
-});
+// Mic button click binding
+if (recordBtn) {
+    recordBtn.addEventListener("click", () => {
+        if (!mediaRecorder) {
+            setupRecorder().then(() => {
+                if (mediaRecorder) startRecording();
+            });
+            return;
+        }
+        
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    });
+}
 
-// Submit text query
-textSubmitBtn.addEventListener("click", () => {
-    const text = queryTextInput.value.trim();
-    if (text) {
-        submitPipelineQuery(text, null);
-    }
-});
-
-queryTextInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
+// Submit text query binding
+if (textSubmitBtn) {
+    textSubmitBtn.addEventListener("click", () => {
         const text = queryTextInput.value.trim();
-        if (text) submitPipelineQuery(text, null);
-    }
-});
+        if (text) {
+            submitPipelineQuery(text, null);
+        }
+    });
+}
 
-// API Query Trigger
+if (queryTextInput) {
+    queryTextInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            const text = queryTextInput.value.trim();
+            if (text) submitPipelineQuery(text, null);
+        }
+    });
+}
+
+// Core API Query Trigger
 async function submitPipelineQuery(text, audioBlob) {
     // Show spinner in response card
     outQuery.textContent = text || "Audio Speech Input";
-    outResponse.innerHTML = `<div class="flex items-center gap-2 text-indigo-400 font-semibold"><i class="fa-solid fa-spinner animate-spin"></i> Processing pipeline...</div>`;
+    outResponse.innerHTML = `<div class="flex items-center gap-2 text-[#FFC93C] font-semibold"><i class="fa-solid fa-spinner animate-spin"></i> Analyzing pipeline path...</div>`;
     guardrailBadges.innerHTML = "";
     
     const formData = new FormData();
@@ -164,8 +182,8 @@ async function submitPipelineQuery(text, audioBlob) {
         renderPipelineResponse(data, audioBlob);
         await updateAnalytics();
     } catch (err) {
-        outResponse.innerHTML = `<span class="text-red-500 font-semibold"><i class="fa-solid fa-circle-exclamation"></i> Error: ${err.message}</span>`;
-        if (audioBlob) recordStatus.textContent = "Query failed";
+        outResponse.innerHTML = `<span class="text-[#FF2E7E] font-semibold"><i class="fa-solid fa-circle-exclamation"></i> Error: ${err.message}</span>`;
+        if (audioBlob && recordStatus) recordStatus.textContent = "Query failed";
     }
 }
 
@@ -175,14 +193,14 @@ function renderPipelineResponse(data, audioBlob = null) {
         outQuery.textContent = data.query_text;
     }
     
-    // Status color glow
-    outputCard.className = "bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-lg min-h-[180px] flex flex-col justify-between transition-all duration-300";
+    // Status border glows
+    outputCard.className = "glass-card p-6 min-h-[220px] flex flex-col justify-between transition-all duration-300";
     if (data.status === "refused") {
-        outputCard.classList.add("glow-red", "border-red-900");
-        outResponse.className = "text-red-400 font-semibold text-lg bg-gray-900/50 p-4 rounded-lg border border-red-900/30 mt-1 min-h-[60px]";
+        outputCard.classList.add("border-[#FF2E7E]/40", "glow-pink");
+        outResponse.className = "text-[#FF2E7E] font-medium text-lg bg-black/40 p-4 rounded-xl border border-white/5 mt-2 leading-relaxed min-h-[70px]";
     } else if (data.status === "success") {
-        outputCard.classList.add("glow-green", "border-green-900");
-        outResponse.className = "text-green-300 font-semibold text-lg bg-gray-900/50 p-4 rounded-lg border border-green-900/30 mt-1 min-h-[60px]";
+        outputCard.classList.add("border-[#2ED9A0]/40", "glow-mint");
+        outResponse.className = "text-[#F3F1E7] font-medium text-lg bg-black/40 p-4 rounded-xl border border-white/5 mt-2 leading-relaxed min-h-[70px]";
     }
     outResponse.textContent = data.response_text;
 
@@ -192,59 +210,94 @@ function renderPipelineResponse(data, audioBlob = null) {
     outCoreLatency.textContent = `${coreLatency.toFixed(1)} ms`;
     outTotalLatency.textContent = `${timings.total_ms.toFixed(1)} ms`;
 
-    // Dynamic Guardrail Badges
+    // Dynamic Guardrail Status Pills (top right of response card)
     const guards = data.guardrail_results;
     let badgesHtml = "";
     
-    // Safety
-    if (guards.safe) {
-        badgesHtml += `<span class="px-2 py-0.5 bg-green-900/30 text-green-400 border border-green-800/50 rounded-full text-xs font-semibold"><i class="fa-solid fa-shield"></i> Safe</span>`;
-    } else {
-        badgesHtml += `<span class="px-2 py-0.5 bg-red-900/30 text-red-400 border border-red-800/50 rounded-full text-xs font-semibold"><i class="fa-solid fa-triangle-exclamation"></i> Unsafe</span>`;
-    }
-    
-    // Off-topic
-    if (guards.off_topic) {
-        badgesHtml += `<span class="px-2 py-0.5 bg-yellow-900/30 text-yellow-400 border border-yellow-800/50 rounded-full text-xs font-semibold"><i class="fa-solid fa-route"></i> Off-Topic</span>`;
-    }
-    
-    // Groundedness
+    // Prominent Groundedness Status Pill
     if (data.status === "success") {
-        badgesHtml += `<span class="px-2 py-0.5 bg-emerald-900/30 text-emerald-400 border border-emerald-800/50 rounded-full text-xs font-semibold"><i class="fa-solid fa-circle-check"></i> Grounded</span>`;
-    } else if (guards.grounded === false && !guards.off_topic) {
-        badgesHtml += `<span class="px-2 py-0.5 bg-red-900/30 text-red-400 border border-red-800/50 rounded-full text-xs font-semibold"><i class="fa-solid fa-ghost"></i> Hallucinated</span>`;
+        badgesHtml += `<span class="px-3.5 py-1 bg-[#2ED9A0]/20 text-[#2ED9A0] border border-[#2ED9A0]/45 rounded-full text-xs font-bold font-mono tracking-wider flex items-center gap-1.5 glow-mint">
+            <span class="h-2 w-2 rounded-full bg-[#2ED9A0]"></span> GROUNDED
+        </span>`;
+    } else if (guards.off_topic) {
+        badgesHtml += `<span class="px-3.5 py-1 bg-[#FF2E7E]/20 text-[#FF2E7E] border border-[#FF2E7E]/45 rounded-full text-xs font-bold font-mono tracking-wider flex items-center gap-1.5 glow-pink">
+            <span class="h-2 w-2 rounded-full bg-[#FF2E7E]"></span> OFF-TOPIC
+        </span>`;
+    } else if (guards.grounded === false) {
+        badgesHtml += `<span class="px-3.5 py-1 bg-[#FFC93C]/20 text-[#FFC93C] border border-[#FFC93C]/45 rounded-full text-xs font-bold font-mono tracking-wider flex items-center gap-1.5 glow-gold">
+            <span class="h-2 w-2 rounded-full bg-[#FFC93C]"></span> INSUFFICIENT EVIDENCE
+        </span>`;
+    }
+    
+    // Safety flag tag
+    if (!guards.safe) {
+        badgesHtml += `<span class="px-2.5 py-1 bg-[#FF2E7E]/20 text-[#FF2E7E] border border-[#FF2E7E]/40 rounded-full text-[10px] font-bold font-mono uppercase tracking-wider">UNSAFE</span>`;
     }
     guardrailBadges.innerHTML = badgesHtml;
 
-    // Display source passages
+    // Display retrieved passages with colored strategy tags
     if (data.retrieved_chunks && data.retrieved_chunks.length > 0) {
-        chunksContainer.innerHTML = data.retrieved_chunks.map((chunk, idx) => `
-            <div class="p-4 bg-gray-900/60 border ${chunk.is_selected ? 'border-indigo-500/50 bg-indigo-950/10' : 'border-gray-800'} rounded-lg">
-                <div class="flex justify-between items-center mb-1 text-xs">
-                    <span class="font-bold ${chunk.is_selected ? 'text-indigo-400' : 'text-gray-400'}">Passage #${idx + 1} (Idx ${chunk.passage_index})</span>
-                    <div class="flex gap-2">
-                        ${chunk.is_selected ? '<span class="px-1.5 py-0.2 bg-indigo-900/50 text-indigo-300 rounded font-semibold text-[10px]">Ground Truth Source</span>' : ''}
-                        <span class="text-indigo-400 font-mono font-semibold">Similarity: ${chunk.score.toFixed(3)}</span>
+        chunksContainer.innerHTML = data.retrieved_chunks.map((chunk, idx) => {
+            // Determine strategy badge style
+            let strategyTag = "FIXED";
+            let strategyStyle = "border-[#3B82F6] text-[#60A5FA] bg-[#3B82F6]/5";
+            
+            if (chunk.strategy === "sentence-aware") {
+                strategyTag = "SEMANTIC";
+                strategyStyle = "border-[#0D9488] text-[#2DD4BF] bg-[#0D9488]/5";
+            } else if (chunk.strategy === "structure-aware") {
+                strategyTag = "METADATA";
+                strategyStyle = "border-[#D97706] text-[#FBBF24] bg-[#D97706]/5";
+            }
+            
+            return `
+                <div class="p-4 bg-black/40 border ${chunk.is_selected ? 'border-[#FFC93C]/50 bg-[#FFC93C]/5 shadow-[#FFC93C]/5' : 'border-white/5'} rounded-xl shadow-inner transition hover:border-white/10 duration-200">
+                    <div class="flex justify-between items-center mb-2.5">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 border ${strategyStyle} rounded text-[9px] font-mono font-bold">${strategyTag}</span>
+                            ${chunk.is_selected ? '<span class="px-2 py-0.5 bg-[#FFC93C]/10 text-[#FFC93C] border border-[#FFC93C]/30 rounded text-[9px] font-mono font-bold">GT SOURCE</span>' : ''}
+                        </div>
+                        <div class="text-right font-mono text-xs">
+                            <span class="text-[#9FB8AC] mr-2">Index: ${chunk.passage_index}</span>
+                            <span class="text-[#FFC93C] font-bold">Score: ${chunk.score.toFixed(3)}</span>
+                        </div>
                     </div>
+                    <p class="text-sm text-[#F3F1E7] leading-relaxed font-body">${chunk.text}</p>
                 </div>
-                <p class="text-sm text-gray-300 leading-relaxed">${chunk.text}</p>
-            </div>
-        `).join("");
+            `;
+        }).join("");
     } else {
-        chunksContainer.innerHTML = `<p class="text-gray-500 italic text-sm text-center py-8">No passages retrieved.</p>`;
+        chunksContainer.innerHTML = `<p class="text-[#9FB8AC] italic text-sm text-center py-8">No passages retrieved.</p>`;
+    }
+
+    // Update RAG target latency bar
+    const latencyBarFill = document.getElementById("latency-bar-fill");
+    if (latencyBarFill) {
+        // Calculate percentage (capping at 100% for 300ms)
+        let percentage = Math.min((coreLatency / 300) * 100, 100);
+        latencyBarFill.style.width = percentage + "%";
+        
+        // Remove coloring classes
+        latencyBarFill.classList.remove("bg-[#2ED9A0]", "bg-[#FF2E7E]");
+        
+        // Add coloring based on 200ms threshold
+        if (coreLatency < 200) {
+            latencyBarFill.classList.add("bg-[#2ED9A0]"); // Mint (under limit)
+        } else {
+            latencyBarFill.classList.add("bg-[#FF2E7E]"); // Pink-red (over limit)
+        }
     }
 
     // Refresh chart with timings
     renderLatencyChart(timings);
-    if (audioBlob) recordStatus.textContent = "Done!";
+    if (audioBlob && recordStatus) recordStatus.textContent = "Speak Now";
 }
 
-// Draw Stacked Horizontal Chart
+// Draw Latency Chart matching design tokens
 function renderLatencyChart(timings) {
     const ctx = document.getElementById("latencyChart").getContext("2d");
     
-    // Prepare values
-    const labels = ["STT", "Embed", "Retrieve", "LLM Gen", "Guardrails"];
+    const labels = ["STT", "Embed", "Search", "LLM Gen", "Guardrails"];
     const values = [
         timings.stt_ms,
         timings.embed_ms,
@@ -262,17 +315,16 @@ function renderLatencyChart(timings) {
         data: {
             labels: labels,
             datasets: [{
-                label: 'Step Latency (ms)',
                 data: values,
                 backgroundColor: [
-                    'rgba(244, 63, 94, 0.75)',  // Rose - STT
-                    'rgba(99, 102, 241, 0.75)',  // Indigo - Embed
-                    'rgba(168, 85, 247, 0.75)',  // Purple - Retrieve
-                    'rgba(236, 72, 153, 0.75)',  // Pink - LLM Gen
-                    'rgba(16, 185, 129, 0.75)'   // Emerald - Guardrails
+                    'rgba(255, 46, 126, 0.75)',  // Pink - STT
+                    'rgba(255, 201, 60, 0.75)',  // Gold - Embed
+                    'rgba(46, 217, 160, 0.75)',  // Mint - Search
+                    'rgba(96, 165, 250, 0.75)',  // Blue - LLM Gen
+                    'rgba(159, 184, 172, 0.75)'  // Muted green - Guardrails
                 ],
                 borderColor: [
-                    '#f43f5e', '#6366f1', '#a855f7', '#ec4899', '#10b981'
+                    '#FF2E7E', '#FFC93C', '#2ED9A0', '#60A5FA', '#9FB8AC'
                 ],
                 borderWidth: 1.5,
                 borderRadius: 4
@@ -292,12 +344,12 @@ function renderLatencyChart(timings) {
             },
             scales: {
                 x: {
-                    grid: { color: 'rgba(75, 85, 99, 0.2)' },
-                    ticks: { color: '#9ca3af', font: { size: 10 } }
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: { color: '#9FB8AC', font: { size: 9, family: 'JetBrains Mono' } }
                 },
                 y: {
                     grid: { display: false },
-                    ticks: { color: '#e5e7eb', font: { weight: 'bold', size: 11 } }
+                    ticks: { color: '#F3F1E7', font: { weight: 'bold', size: 10 } }
                 }
             }
         }
@@ -319,20 +371,19 @@ async function updateAnalytics() {
             return;
         }
 
-        const rp = data.P50.rag_path;
         p50Val.textContent = `${data.P50.rag_path.toFixed(1)} ms`;
         p70Val.textContent = `${data.P70.rag_path.toFixed(1)} ms`;
         p100Val.textContent = `${data.P100.rag_path.toFixed(1)} ms`;
 
-        // Check if worst-case core RAG meets latency target
+        // Style Worst Case P100 dynamically
         const worstCase = data.P100.rag_path;
+        p100Val.className = "text-2xl font-bold font-mono mt-1";
         if (worstCase < 200) {
-            p100Val.className = "font-bold text-green-400 font-mono text-sm";
+            p100Val.classList.add("text-[#2ED9A0]"); // Mint (Success)
         } else if (data.P50.rag_path < 200) {
-            p100Val.className = "font-bold text-yellow-400 font-mono text-sm";
-            p50Val.className = "font-bold text-green-400 font-mono text-sm";
+            p100Val.classList.add("text-[#FFC93C]"); // Gold (Warning)
         } else {
-            p100Val.className = "font-bold text-red-400 font-mono text-sm";
+            p100Val.classList.add("text-[#FF2E7E]"); // Pink (Fail)
         }
     } catch (err) {
         console.error("Error fetching analytics:", err);
@@ -340,27 +391,36 @@ async function updateAnalytics() {
 }
 
 // Reset analytics log trigger
-resetBtn.addEventListener("click", async () => {
-    if (confirm("Are you sure you want to clear the latency logs?")) {
-        try {
-            await fetch("/api/reset_analytics", { method: "POST" });
-            await updateAnalytics();
-            chunksContainer.innerHTML = `<p class="text-gray-500 italic text-sm text-center py-8">No passages retrieved yet. Submit a query to see grounding details.</p>`;
-            outQuery.textContent = "Waiting for input...";
-            outResponse.textContent = "Your response will appear here.";
-            outCoreLatency.textContent = "- ms";
-            outTotalLatency.textContent = "- ms";
-            guardrailBadges.innerHTML = "";
-            outputCard.className = "bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-lg min-h-[180px] flex flex-col justify-between";
-            if (chartInstance) {
-                chartInstance.destroy();
-                chartInstance = null;
+if (resetBtn) {
+    resetBtn.addEventListener("click", async () => {
+        if (confirm("Are you sure you want to clear the latency logs?")) {
+            try {
+                await fetch("/api/reset_analytics", { method: "POST" });
+                await updateAnalytics();
+                chunksContainer.innerHTML = `<p class="text-[#9FB8AC] italic text-sm text-center py-8">No passages retrieved yet. Submit a query to see grounding details.</p>`;
+                outQuery.textContent = "Waiting for input...";
+                outResponse.textContent = "Response content will render here.";
+                outCoreLatency.textContent = "- ms";
+                outTotalLatency.textContent = "- ms";
+                guardrailBadges.innerHTML = "";
+                outputCard.className = "glass-card p-6 min-h-[220px] flex flex-col justify-between";
+                
+                const latencyBarFill = document.getElementById("latency-bar-fill");
+                if (latencyBarFill) {
+                    latencyBarFill.style.width = "0%";
+                    latencyBarFill.classList.remove("bg-[#2ED9A0]", "bg-[#FF2E7E]");
+                }
+                
+                if (chartInstance) {
+                    chartInstance.destroy();
+                    chartInstance = null;
+                }
+            } catch (err) {
+                console.error("Reset failed:", err);
             }
-        } catch (err) {
-            console.error("Reset failed:", err);
         }
-    }
-});
+    });
+}
 
 // Setup audio and analytics on load
 setupRecorder();

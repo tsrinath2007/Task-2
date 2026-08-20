@@ -3,196 +3,321 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice-Enabled RAG Pipeline Dashboard</title>
+    <title>Voice RAG Dashboard — Tropical Tech</title>
+    <!-- CSS & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Space Grotesk (Display), Inter (Body), JetBrains Mono (Technical Numbers) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['Space Grotesk', 'sans-serif'],
+                        body: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    
     <style>
-        .glow-red { box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
-        .glow-green { box-shadow: 0 0 15px rgba(34, 197, 94, 0.5); }
+        /* Waveform bounce keyframe animation for mic recording */
+        @keyframes wave-bounce {
+            0%, 100% { height: 6px; }
+            50% { height: 28px; }
+        }
+        .wave-bar {
+            width: 3px;
+            background-color: #FFC93C;
+            border-radius: 9999px;
+            animation: wave-bounce 1s ease-in-out infinite;
+        }
+        .wave-bar:nth-child(2) { animation-delay: 0.15s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.3s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.45s; }
+        .wave-bar:nth-child(5) { animation-delay: 0.6s; }
+        .wave-bar:nth-child(6) { animation-delay: 0.45s; }
+        .wave-bar:nth-child(7) { animation-delay: 0.3s; }
+        .wave-bar:nth-child(8) { animation-delay: 0.15s; }
+        
+        /* Respect prefers-reduced-motion standard */
+        @media (prefers-reduced-motion: reduce) {
+            .wave-bar, .pulse-glow {
+                animation: none !important;
+            }
+        }
+
+        /* Glassmorphism styling tokens */
+        .glass-card {
+            background: rgba(11, 20, 32, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 201, 60, 0.15);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        
+        /* Status shadow glows */
+        .glow-mint { box-shadow: 0 0 15px rgba(46, 217, 160, 0.3); }
+        .glow-pink { box-shadow: 0 0 15px rgba(255, 46, 126, 0.3); }
+        .glow-gold { box-shadow: 0 0 15px rgba(255, 201, 60, 0.3); }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
-    <div class="container mx-auto px-4 py-8">
-        <header class="mb-8 border-b border-gray-800 pb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+<body class="bg-[#0F3D2E] text-[#F3F1E7] min-h-screen font-body relative overflow-x-hidden">
+
+    <!-- Confident Fixed Background Layer (Tropical Deep Green + Warm Radial Sun Glow + Soundwave Line-art) -->
+    <div class="fixed inset-0 -z-10 pointer-events-none overflow-hidden bg-gradient-to-b from-[#0F3D2E] to-[#1A5C42]">
+        <!-- Radial Gold Warm Sunrise Glow behind hero section -->
+        <div class="absolute top-[-100px] left-[15%] w-[700px] h-[550px] rounded-full bg-gradient-to-tr from-[#FFC93C]/12 to-[#2ED9A0]/5 blur-[130px] pointer-events-none"></div>
+        
+        <!-- Inline Original Background Art: India Outline & Sound Waves -->
+        <svg class="absolute inset-0 w-full h-full opacity-25" xmlns="http://www.w3.org/2000/svg">
+            <!-- India Subcontinent Faint Line-art (off-center) -->
+            <g stroke="#FFC93C" stroke-width="1.2" fill="none" opacity="0.10" transform="translate(680, 80) scale(0.95)">
+                <path d="M 120,40 C 130,50 140,55 140,65 C 140,75 145,80 155,85 C 165,90 170,100 170,110 C 170,120 180,125 185,135 C 190,145 195,150 195,160 C 195,170 190,180 185,190 C 180,200 170,210 165,220 C 160,230 150,240 145,250 C 140,260 135,270 130,280 C 125,290 120,300 115,310 C 110,320 105,330 102,340 C 99,350 97,360 97,370 C 97,372 98,374 98,376 L 100,380 C 98,382 96,384 94,386 C 90,390 85,395 85,398 C 85,400 87,402 88,405 C 89,407 90,409 89,411 C 88,413 86,415 85,417 C 84,419 83,421 82,423 C 80,425 78,427 77,429 C 76,431 75,433 75,435 L 75,438 C 74,439 72,437 71,435 C 70,433 69,431 68,429 C 67,427 65,425 63,423 C 61,421 59,419 57,417 C 55,415 53,413 51,411 C 49,409 47,407 45,405 C 43,403 41,401 39,399 L 35,395 C 34,392 35,389 36,386 C 37,383 38,380 39,377 C 40,374 41,371 42,368 C 43,365 44,362 44,359 C 44,356 42,353 40,350 C 38,347 36,344 34,341 C 32,338 30,335 28,332 C 26,329 24,326 22,323 C 20,320 18,317 16,314 C 14,311 12,308 10,305 C 8,302 6,299 4,296 C 2,293 0,290 0,287 C 0,284 2,281 4,278 C 6,275 8,272 10,269 C 12,266 14,263 16,260 C 18,257 20,254 22,251 C 24,248 26,245 28,242 C 30,239 32,236 34,233 C 36,230 38,227 40,224 C 42,221 44,218 45,215 C 46,212 47,209 48,206 C 49,203 50,200 51,197 C 52,194 53,191 54,188 C 55,185 56,182 57,179 C 58,176 59,173 60,170 C 61,167 62,164 63,161 C 64,158 65,155 66,152 C 67,149 68,146 69,143 C 70,140 71,137 72,134 L 75,120 C 76,115 77,110 78,105 C 79,100 80,95 81,90 C 82,85 83,80 85,75 C 87,70 89,65 92,60 C 95,55 98,50 102,45 C 106,40 110,38 115,38 Z" />
+            </g>
+            
+            <!-- Thin gold wave lines flowing across edges -->
+            <g stroke="#FFC93C" stroke-width="1.2" fill="none" opacity="0.12">
+                <!-- Top Wave -->
+                <path d="M 0,50 C 150,110 300,10 450,70 C 600,130 750,20 900,80 C 1050,140 1200,40 1350,60 C 1500,80 1650,20 1800,50 C 1950,80 2100,30 2250,40" />
+                <!-- Bottom Wave -->
+                <path d="M 0,820 C 200,740 400,900 600,770 C 800,640 1000,860 1200,790 C 1400,720 1600,880 1800,820 C 2000,760 2200,840 2400,820" />
+            </g>
+        </svg>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container mx-auto px-6 py-10 max-w-7xl relative">
+        
+        <!-- Header -->
+        <header class="mb-10 flex flex-col md:flex-row justify-between items-center gap-6 border-b border-white/10 pb-6">
             <div>
-                <h1 class="text-3xl font-bold text-indigo-400 flex items-center gap-3">
-                    <i class="fa-solid fa-microphone-lines"></i>
-                    Voice-Enabled RAG Pipeline
+                <span class="text-xs uppercase tracking-widest text-[#9FB8AC] font-mono">HH Goa 2026 — Task 2</span>
+                <h1 class="text-4xl md:text-5xl font-display font-bold leading-none text-[#F3F1E7] mt-1">
+                    Ask in your voice. <br>Get <span class="text-[#FFC93C]">grounded answers.</span>
                 </h1>
-                <p class="text-gray-400 mt-1">HH Goa 2026 — Task 2 | Latency-Optimized Indic RAG Harness</p>
             </div>
-            <div class="flex items-center gap-4">
-                <span class="px-3 py-1 bg-green-900/30 text-green-400 border border-green-800 rounded-full text-xs font-semibold flex items-center gap-1.5">
-                    <span class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-                    FastAPI Server Live
+            <div class="flex items-center gap-3">
+                <span class="px-3.5 py-1.5 bg-[#2ED9A0]/10 text-[#2ED9A0] border border-[#2ED9A0]/30 rounded-full text-xs font-semibold flex items-center gap-2">
+                    <span class="h-2.5 w-2.5 rounded-full bg-[#2ED9A0] animate-pulse"></span>
+                    FastAPI Studio Online
                 </span>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- Left Side: Interaction Panel -->
-            <div class="lg:col-span-5 space-y-6">
-                <!-- Step 1: Configuration -->
-                <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-lg">
-                    <h2 class="text-lg font-semibold mb-4 text-indigo-300 flex items-center gap-2">
-                        <i class="fa-solid fa-sliders"></i> Pipeline Configurations
-                    </h2>
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Left Column: Configs & Capture -->
+            <div class="lg:col-span-5 space-y-8">
+                
+                <!-- Configurations Panel -->
+                <div class="glass-card p-6">
+                    <div class="flex items-center gap-2 mb-6 border-b border-white/5 pb-3">
+                        <i class="fa-solid fa-sliders text-[#FFC93C]"></i>
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-[#9FB8AC] font-mono">Harness Configurations</h2>
+                    </div>
                     
-                    <div class="space-y-4">
+                    <div class="space-y-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1.5">Chunking Strategy</label>
-                            <select id="strategy" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 focus:outline-none focus:border-indigo-500">
-                                <option value="sentence-aware">(Recommended) Sentence-Boundary Aware</option>
+                            <label class="block text-xs font-semibold text-[#F3F1E7] mb-2 font-mono uppercase tracking-wider">Chunking Strategy</label>
+                            <select id="strategy" class="w-full bg-[#0F3D2E]/50 border border-white/15 rounded-lg px-4 py-3 text-sm text-[#F3F1E7] focus:outline-none focus:border-[#FFC93C] transition">
+                                <option value="sentence-aware">Sentence-Boundary Aware (Semantic)</option>
                                 <option value="fixed-overlap">Fixed-Size with Overlap (Baseline)</option>
-                                <option value="structure-aware">Structure-Aware (MSMARCO Passages)</option>
+                                <option value="structure-aware">Structure-Aware (MSMARCO Pairs)</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-1.5">Off-Topic Similarity Threshold</label>
-                            <div class="flex items-center gap-3">
-                                <input type="range" id="threshold" min="0.10" max="0.80" step="0.05" value="0.35" class="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-500">
-                                <span id="threshold-val" class="text-sm font-semibold bg-gray-900 px-2.5 py-1 rounded text-indigo-400 border border-gray-700 w-12 text-center">0.35</span>
+                            <label class="block text-xs font-semibold text-[#F3F1E7] mb-2 font-mono uppercase tracking-wider">Off-Topic Similarity Threshold</label>
+                            <div class="flex items-center gap-4">
+                                <input type="range" id="threshold" min="0.10" max="0.80" step="0.05" value="0.35" class="w-full h-1 bg-white/15 rounded-lg appearance-none cursor-pointer accent-[#FFC93C]">
+                                <span id="threshold-val" class="text-xs font-bold font-mono bg-[#0F3D2E] px-3 py-1.5 rounded-md text-[#FFC93C] border border-white/10 w-12 text-center">0.35</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Step 2: Voice Input / Text Trigger -->
-                <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-lg flex flex-col items-center justify-center min-h-[300px] relative overflow-hidden">
-                    <h2 class="text-lg font-semibold text-indigo-300 absolute top-6 left-6 flex items-center gap-2">
-                        <i class="fa-solid fa-microphone"></i> Voice Capture (11Labs STT)
-                    </h2>
-
-                    <!-- Audio Mic button -->
-                    <div class="flex flex-col items-center justify-center space-y-4 mt-8">
-                        <button id="record-btn" class="w-24 h-24 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center shadow-lg transition duration-200 transform hover:scale-105 active:scale-95 focus:outline-none">
-                            <i id="record-icon" class="fa-solid fa-microphone text-4xl"></i>
-                        </button>
-                        <p id="record-status" class="text-sm text-gray-400 font-medium">Click to Speak</p>
-                        <div id="recording-time" class="text-xs text-red-400 font-mono hidden">00:00</div>
+                <!-- Voice Capture (Live Studio Panel) -->
+                <div class="glass-card p-6 min-h-[300px] flex flex-col justify-between relative overflow-hidden">
+                    <div class="flex items-center gap-2 mb-4 border-b border-white/5 pb-3">
+                        <i class="fa-solid fa-microphone text-[#FFC93C]"></i>
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-[#9FB8AC] font-mono">Live Voice Capture (11Labs STT)</h2>
                     </div>
 
-                    <!-- Audio Player for recorded audio -->
-                    <audio id="audio-playback" class="mt-4 w-full max-w-xs hidden" controls></audio>
+                    <!-- Voice Pill Capture Trigger -->
+                    <div class="flex flex-col items-center justify-center my-6 space-y-4">
+                        <!-- Pill Shaped Mic Button -->
+                        <button id="record-btn" class="flex items-center gap-3.5 bg-[#FFC93C] hover:bg-[#ffe180] text-[#0F3D2E] px-7 py-4 rounded-full font-display font-bold uppercase tracking-wider shadow-lg transition duration-200 transform hover:scale-105 active:scale-95 focus:outline-none">
+                            <i id="record-icon" class="fa-solid fa-microphone text-lg"></i>
+                            <span id="record-status">Speak Now</span>
+                        </button>
+                        
+                        <!-- Pulse timer -->
+                        <div id="recording-time" class="text-xs text-[#FF2E7E] font-mono font-bold tracking-widest bg-black/35 px-3 py-1 rounded-full hidden">00:00</div>
+                        
+                        <!-- Visual waveform animation -->
+                        <div id="waveform" class="flex items-center gap-1.5 h-12 justify-center hidden">
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                        </div>
+                    </div>
+
+                    <!-- Hidden play audio widget -->
+                    <audio id="audio-playback" class="w-full mt-2 hidden" controls></audio>
 
                     <!-- Text input fallback -->
-                    <div class="w-full border-t border-gray-700 mt-6 pt-6">
-                        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Or Type Text Query</label>
+                    <div class="border-t border-white/10 mt-6 pt-5">
+                        <label class="block text-[10px] font-bold text-[#9FB8AC] uppercase tracking-widest mb-2 font-mono">Or Text Fallback Input</label>
                         <div class="flex gap-2">
-                            <input type="text" id="query-text-input" placeholder="e.g. নিগম কি? (What is a corporation?)" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3.5 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-indigo-500">
-                            <button id="text-submit-btn" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-sm font-semibold transition">
+                            <input type="text" id="query-text-input" placeholder="e.g. कॉर्पोरेशन क्या है?" class="w-full bg-[#0F3D2E]/40 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-[#F3F1E7] placeholder-[#9FB8AC]/40 focus:outline-none focus:border-[#FFC93C]">
+                            <button id="text-submit-btn" class="bg-[#FFC93C]/10 border border-[#FFC93C]/30 text-[#FFC93C] hover:bg-[#FFC93C]/20 px-5 rounded-lg text-sm font-semibold transition">
                                 Send
                             </button>
                         </div>
                     </div>
                 </div>
+
             </div>
 
-            <!-- Right Side: Pipeline Output & Analytics -->
-            <div class="lg:col-span-7 space-y-6">
-                <!-- Response & Groundedness Output -->
-                <div id="output-card" class="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-lg min-h-[180px] flex flex-col justify-between transition-all duration-300">
+            <!-- Right Column: Results & Latency metrics -->
+            <div class="lg:col-span-7 space-y-8">
+                
+                <!-- Output Card -->
+                <div id="output-card" class="glass-card p-6 min-h-[220px] flex flex-col justify-between transition-all duration-300">
                     <div>
-                        <div class="flex justify-between items-start mb-4">
-                            <h2 class="text-lg font-semibold text-indigo-300 flex items-center gap-2">
-                                <i class="fa-solid fa-circle-info"></i> Pipeline Output
-                            </h2>
+                        <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-3">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-cube text-[#FFC93C]"></i>
+                                <h2 class="text-xs font-bold uppercase tracking-wider text-[#9FB8AC] font-mono">Pipeline Response</h2>
+                            </div>
                             <div id="guardrail-badges" class="flex gap-2">
-                                <!-- Dynamic badges go here -->
+                                <!-- Rendered dynamically -->
                             </div>
                         </div>
 
                         <div class="space-y-4">
                             <div>
-                                <span class="text-xs font-semibold text-gray-400 uppercase">Transcribed / Input Query:</span>
-                                <p id="out-query" class="text-gray-200 font-medium italic mt-0.5">Waiting for input...</p>
+                                <span class="text-[10px] font-bold text-[#9FB8AC] uppercase tracking-widest font-mono">Query Prompt:</span>
+                                <p id="out-query" class="text-[#F3F1E7] font-semibold italic mt-1 font-body">Waiting for input...</p>
                             </div>
                             <div>
-                                <span class="text-xs font-semibold text-gray-400 uppercase">Grounded Generation:</span>
-                                <p id="out-response" class="text-gray-100 font-semibold text-lg bg-gray-900/50 p-4 rounded-lg border border-gray-700/50 mt-1 leading-relaxed min-h-[60px]">
-                                    Your response will appear here.
+                                <span class="text-[10px] font-bold text-[#9FB8AC] uppercase tracking-widest font-mono font-mono">Grounded Generation Answer:</span>
+                                <p id="out-response" class="text-[#F3F1E7] font-medium text-lg bg-black/40 p-4 rounded-xl border border-white/5 mt-2 leading-relaxed min-h-[70px]">
+                                    Response content will render here.
                                 </p>
                             </div>
                         </div>
                     </div>
-                    <div class="flex justify-between items-center text-xs text-gray-400 border-t border-gray-700/50 pt-3 mt-4">
+
+                    <div class="flex justify-between items-center text-xs text-[#9FB8AC] border-t border-white/10 pt-4 mt-6">
                         <div>
-                            <span>Core Latency: </span>
-                            <span id="out-core-latency" class="font-semibold text-indigo-400">- ms</span>
+                            <span>Core RAG Latency:</span>
+                            <span id="out-core-latency" class="font-bold text-[#FFC93C] font-mono ml-1">- ms</span>
                         </div>
                         <div>
-                            <span>Total Latency (with STT): </span>
-                            <span id="out-total-latency" class="font-semibold text-gray-300">- ms</span>
+                            <span>Total Latency (with STT):</span>
+                            <span id="out-total-latency" class="font-bold text-[#F3F1E7] font-mono ml-1">- ms</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Latency Chart & Percentiles Dashboard -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Percentiles Card -->
-                    <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-lg">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-sm font-bold text-indigo-300 uppercase tracking-wider">
-                                RAG Latency Target (&lt;200ms)
-                            </h2>
-                            <button id="reset-btn" class="text-xs text-red-400 hover:text-red-300 flex items-center gap-1">
-                                <i class="fa-solid fa-trash-can"></i> Clear Logs
-                            </button>
+                <!-- Latency timing visualizations -->
+                <div class="glass-card p-6 space-y-6">
+                    <div class="flex justify-between items-center border-b border-white/5 pb-3">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-gauge-high text-[#FFC93C]"></i>
+                            <h2 class="text-xs font-bold uppercase tracking-wider text-[#9FB8AC] font-mono">Latency Analytics (P50/P70/P100)</h2>
+                        </div>
+                        <button id="reset-btn" class="text-xs text-[#FF2E7E] hover:text-[#ff629c] font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-trash-can"></i> Clear Logs
+                        </button>
+                    </div>
+
+                    <!-- Target Bar Visualization -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-end text-xs font-mono text-[#9FB8AC]">
+                            <span>RAG Pathway latency</span>
+                            <span class="text-xs text-[#FF2E7E] uppercase font-bold tracking-widest">Limit: 200ms</span>
+                        </div>
+                        <div class="relative w-full h-4 bg-black/40 rounded-full border border-white/10 overflow-hidden">
+                            <!-- Fill bar: set width dynamically -->
+                            <div id="latency-bar-fill" class="h-full w-0 transition-all duration-500 bg-[#2ED9A0] rounded-full"></div>
+                            
+                            <!-- 200ms Target mark (positioned at 66% of the bar representing 0-300ms range) -->
+                            <div class="absolute top-0 bottom-0 left-[66.6%] w-[2px] bg-[#FF2E7E]"></div>
+                        </div>
+                        <div class="flex justify-between text-[9px] font-mono text-[#9FB8AC]/60 px-1">
+                            <span>0ms</span>
+                            <span>100ms</span>
+                            <span>200ms (Target)</span>
+                            <span>300ms+</span>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Grid (Mono numerals) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-black/30 border border-white/5 rounded-xl p-4 flex flex-col justify-between">
+                            <span class="text-[9px] font-mono uppercase text-[#9FB8AC] tracking-wider">Median Delay (P50)</span>
+                            <span id="p50-val" class="text-2xl font-bold font-mono text-[#2ED9A0] mt-1">- ms</span>
+                        </div>
+                        <div class="bg-black/30 border border-white/5 rounded-xl p-4 flex flex-col justify-between">
+                            <span class="text-[9px] font-mono uppercase text-[#9FB8AC] tracking-wider">70th Percentile (P70)</span>
+                            <span id="p70-val" class="text-2xl font-bold font-mono text-[#FFC93C] mt-1">- ms</span>
+                        </div>
+                        <div class="bg-black/30 border border-white/5 rounded-xl p-4 flex flex-col justify-between">
+                            <span class="text-[9px] font-mono uppercase text-[#9FB8AC] tracking-wider">Worst Case (P100)</span>
+                            <span id="p100-val" class="text-2xl font-bold font-mono text-[#F3F1E7] mt-1">- ms</span>
+                        </div>
+                    </div>
+
+                    <!-- Breakdown chart canvas -->
+                    <div class="relative h-44 w-full bg-black/25 border border-white/5 rounded-xl p-4">
+                        <canvas id="latencyChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Reference Chunks Context -->
+                <div class="glass-card p-6">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b border-white/5 pb-3 mb-6">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-server text-[#FFC93C]"></i>
+                            <h2 class="text-xs font-bold uppercase tracking-wider text-[#9FB8AC] font-mono">Retrieved Context Passages</h2>
                         </div>
                         
-                        <div class="space-y-3">
-                            <div class="flex justify-between items-center bg-gray-900/40 p-2.5 rounded border border-gray-700/30">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-900/50 text-indigo-300 rounded">P50</span>
-                                    <span class="text-sm text-gray-300 font-medium">Median RAG Delay</span>
-                                </div>
-                                <span id="p50-val" class="font-bold text-gray-100 font-mono text-sm">- ms</span>
-                            </div>
-                            <div class="flex justify-between items-center bg-gray-900/40 p-2.5 rounded border border-gray-700/30">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-semibold px-2 py-0.5 bg-purple-900/50 text-purple-300 rounded">P70</span>
-                                    <span class="text-sm text-gray-300 font-medium">70th Percentile RAG</span>
-                                </div>
-                                <span id="p70-val" class="font-bold text-gray-100 font-mono text-sm">- ms</span>
-                            </div>
-                            <div class="flex justify-between items-center bg-gray-900/40 p-2.5 rounded border border-gray-700/30">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-semibold px-2 py-0.5 bg-pink-900/50 text-pink-300 rounded">P100</span>
-                                    <span class="text-sm text-gray-300 font-medium">Worst Case RAG</span>
-                                </div>
-                                <span id="p100-val" class="font-bold text-gray-100 font-mono text-sm">- ms</span>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 text-xs text-gray-400 flex items-center gap-1.5">
-                            <i class="fa-solid fa-circle-exclamation text-indigo-400"></i>
-                            <span>Based on core RAG path (Embed + Retrieve + LLM + Guardrails)</span>
+                        <!-- Legend -->
+                        <div class="flex gap-3 text-[9px] font-mono">
+                            <span class="px-2 py-0.5 border border-[#3B82F6] text-[#60A5FA] rounded">FIXED</span>
+                            <span class="px-2 py-0.5 border border-[#0D9488] text-[#2DD4BF] rounded">SEMANTIC</span>
+                            <span class="px-2 py-0.5 border border-[#D97706] text-[#FBBF24] rounded font-semibold">METADATA</span>
                         </div>
                     </div>
 
-                    <!-- Step breakdown Chart -->
-                    <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-lg flex flex-col justify-between">
-                        <h2 class="text-sm font-bold text-indigo-300 uppercase tracking-wider mb-2">Last Run Delay Breakdown</h2>
-                        <div class="relative h-32 flex items-center justify-center">
-                            <canvas id="latencyChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Reference Chunks / Grounding Passages -->
-                <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-lg">
-                    <h2 class="text-lg font-semibold mb-4 text-indigo-300 flex items-center gap-2">
-                        <i class="fa-solid fa-folder-open"></i> Retrieved Passages Context
-                    </h2>
-                    <div id="chunks-container" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+                    <div id="chunks-container" class="space-y-4 max-h-[350px] overflow-y-auto pr-2">
                         <p class="text-gray-500 italic text-sm text-center py-8">No passages retrieved yet. Submit a query to see grounding details.</p>
                     </div>
                 </div>
+
             </div>
+
         </div>
+
     </div>
-    
-    <script src="app.js?v=2"></script>
+
+    <!-- Script Entry -->
+    <script src="app.js?v=3"></script>
 </body>
 </html>

@@ -71,108 +71,13 @@
 </head>
 <body class="bg-[#0C3426] text-[#F3F1E7] min-h-screen font-body relative overflow-x-hidden">
 
-    <!-- Fixed Illustrated Background Layer (Sunset + Palm Trees + Beach Silhouettes) -->
-    <div class="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
-        <!-- Full-screen Inline Background Vector Art (Vibrant theme matching mockup) -->
-        <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1920 1080">
-            <!-- Sky Gradient (Rich Deep Green to Gold/Yellow) -->
-            <rect width="100%" height="100%" fill="url(#sky-grad)" />
-            <defs>
-                <linearGradient id="sky-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#0C3426" />
-                    <stop offset="45%" stop-color="#16543C" />
-                    <stop offset="70%" stop-color="#2D7F5C" />
-                    <stop offset="90%" stop-color="#E2B31C" />
-                    <stop offset="100%" stop-color="#E2B31C" />
-                </linearGradient>
-                
-                <!-- Sun Radial Gradient for glowing edges -->
-                <radialGradient id="sun-glow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stop-color="#FFC93C" />
-                    <stop offset="85%" stop-color="#FFC93C" />
-                    <stop offset="100%" stop-color="#E2B31C" stop-opacity="0" />
-                </radialGradient>
-            </defs>
-
-            <!-- Bright Yellow Setting Sun in Center-Left (mockup coordinates) -->
-            <circle cx="850" cy="550" r="260" fill="url(#sun-glow)" />
-            
-            <!-- Sun rays / reflection lines on horizon -->
-            <g stroke="#FFC93C" stroke-width="3" opacity="0.6">
-                <line x1="500" y1="560" x2="1200" y2="560" />
-                <line x1="550" y1="580" x2="1150" y2="580" />
-                <line x1="600" y1="600" x2="1100" y2="600" stroke-width="2" />
-                <line x1="680" y1="620" x2="1020" y2="620" stroke-width="1.5" />
-            </g>
-
-            <!-- Ocean water layer at the bottom -->
-            <path d="M -50,750 Q 500,700 1100,740 Q 1600,780 2000,730 L 2000,1100 L -50,1100 Z" fill="#0C3426" />
-
-            <!-- Stylized White Ocean Waves on the Shore -->
-            <path d="M 50,770 C 300,740 600,795 900,760 C 1200,725 1500,790 1950,750" stroke="#FFFFFF" stroke-width="2" fill="none" opacity="0.4" />
-            <path d="M -20,790 C 250,760 550,815 850,780 C 1150,745 1450,810 1970,770" stroke="#FFFFFF" stroke-width="1.5" fill="none" opacity="0.3" stroke-dasharray="25 15" />
-
-            <!-- Beach Sand (Light Grayish Green at the bottom) -->
-            <path d="M -50,860 Q 400,800 1000,870 Q 1500,920 2000,850 L 2000,1100 L -50,1100 Z" fill="#A8BEB0" />
-            <path d="M -50,910 Q 500,850 1100,920 Q 1600,970 2000,900 L 2000,1100 L -50,1100 Z" fill="#D5DDD7" />
-
-            <!-- Beach House Silhouette at bottom right -->
-            <g fill="#082418" opacity="0.9">
-                <!-- House Body -->
-                <polygon points="1400,890 1480,840 1560,890 1560,980 1400,980" />
-                <polygon points="1540,910 1620,865 1700,910 1700,980 1540,980" />
-                <!-- Roofs -->
-                <polygon points="1380,890 1480,830 1580,890" fill="#051C12" />
-                <polygon points="1520,910 1620,855 1720,910" fill="#051C12" />
-                <!-- Surfboard leaning on house -->
-                <path d="M 1370,980 Q 1360,930 1375,900 Q 1390,930 1380,980 Z" fill="#FFC93C" />
-            </g>
-
-            <!-- LEFT PALM TREES (Vibrant Green & Gold Highlights) -->
-            <!-- Palm Tree 1 (Large foreground left) -->
-            <g transform="translate(-80, 200) scale(1.35)">
-                <!-- Trunk -->
-                <path d="M 60,650 Q 160,350 110,80" stroke="#082418" stroke-width="14" fill="none" />
-                <!-- Fronds / Leaves -->
-                <path d="M 110,80 Q 30,100 -60,180" stroke="#155D3E" stroke-width="6" fill="none" />
-                <path d="M 110,80 Q 20,60 -80,100" stroke="#238D5D" stroke-width="8" fill="none" />
-                <path d="M 110,80 Q 40,20 -40,20" stroke="#155D3E" stroke-width="6" fill="none" />
-                <path d="M 110,80 Q 70,0 -10,-30" stroke="#3EB278" stroke-width="8" fill="none" />
-                <path d="M 110,80 Q 160,0 120,-40" stroke="#155D3E" stroke-width="6" fill="none" />
-                <path d="M 110,80 Q 180,30 160,-20" stroke="#3EB278" stroke-width="8" fill="none" />
-                <path d="M 110,80 Q 200,90 260,100" stroke="#155D3E" stroke-width="6" fill="none" />
-                <path d="M 110,80 Q 180,130 220,180" stroke="#238D5D" stroke-width="8" fill="none" />
-                <!-- Coconuts -->
-                <circle cx="95" cy="95" r="10" fill="#FFC93C" />
-                <circle cx="115" cy="100" r="9" fill="#FFC93C" />
-            </g>
-
-            <!-- Palm Tree 2 (Smaller background left) -->
-            <g transform="translate(-150, 320) scale(1.0)">
-                <!-- Trunk -->
-                <path d="M 50,700 Q 130,450 90,150" stroke="#051C12" stroke-width="9" fill="none" />
-                <!-- Fronds -->
-                <path d="M 90,150 Q 10,180 -50,230" stroke="#104E33" stroke-width="5" fill="none" />
-                <path d="M 90,150 Q 20,110 -60,130" stroke="#1C6B4F" stroke-width="7" fill="none" />
-                <path d="M 90,150 Q 80,70 10,40" stroke="#1C6B4F" stroke-width="6" fill="none" />
-                <path d="M 90,150 Q 145,75 100,30" stroke="#2E9E6B" stroke-width="7" fill="none" />
-                <path d="M 90,150 Q 160,120 200,160" stroke="#1C6B4F" stroke-width="6" fill="none" />
-            </g>
-
-            <!-- RIGHT PALM TREES (Vibrant Green & Gold Highlights) -->
-            <!-- Palm Tree 1 (Large foreground right) -->
-            <g transform="translate(1650, 180) scale(1.35)">
-                <!-- Trunk -->
-                <path d="M 140,650 Q 40,350 90,80" stroke="#082418" stroke-width="14" fill="none" />
-                <!-- Fronds -->
-                <path d="M 90,80 Q 10,100 -50,180" stroke="#155D3E" stroke-width="6" fill="none" />
-                <path d="M 90,80 Q 0,60 -80,100" stroke="#238D5D" stroke-width="8" fill="none" />
-                <path d="M 90,80 Q 20,20 -40,10" stroke="#3EB278" stroke-width="8" fill="none" />
-                <path d="M 90,80 Q 120,0 70,-40" stroke="#155D3E" stroke-width="6" fill="none" />
-                <path d="M 90,80 Q 160,30 140,-20" stroke="#3EB278" stroke-width="8" fill="none" />
-                <path d="M 90,80 Q 180,100 240,110" stroke="#155D3E" stroke-width="6" fill="none" />
-            </g>
-        </svg>
+    <!-- Fixed Illustrated Background Layer from Official HH Goa Site -->
+    <div class="fixed inset-0 -z-10 pointer-events-none overflow-hidden bg-gradient-to-b from-[#0C3426] to-[#164e3a]">
+        <!-- Sun Rise background asset from site -->
+        <img src="https://hhgoa.com/assets/Sun%20rise.png" class="absolute top-[12%] left-[28%] -translate-x-1/2 w-[720px] max-w-[85vw] opacity-90 object-contain" alt="Sunrise Glow">
+        
+        <!-- Footer Trees background asset from site (extends up the sides) -->
+        <img src="https://hhgoa.com/assets/footer%20trees.png" class="absolute bottom-0 left-0 right-0 w-full h-[400px] md:h-[450px] object-cover object-top opacity-95" alt="Palm Trees">
     </div>
 
     <!-- Main Container -->

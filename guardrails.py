@@ -61,8 +61,8 @@ def check_groundedness(query_text: str, retrieved_chunks: list, generated_answer
     t0 = time.time()
     groq_key = os.getenv("GROQ_API_KEY")
     
-    if not groq_key:
-        # Dry-run fallback if no keys configured
+    if not groq_key or "your_" in groq_key or "placeholder" in groq_key:
+        # Dry-run fallback if no keys configured or dummy keys
         return {
             "grounded": True,
             "score": 1.0,

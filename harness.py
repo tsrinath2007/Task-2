@@ -103,8 +103,8 @@ class RAGPipeline:
     def get_query_embedding(self, query_text: str) -> np.ndarray:
         """Retrieves or simulates embeddings for the input query."""
         openai_key = os.getenv("OPENAI_API_KEY")
-        if not openai_key:
-            # Reproducible mock embedding if key is missing
+        if not openai_key or "your_" in openai_key or "placeholder" in openai_key:
+            # Reproducible mock embedding if key is missing or dummy
             dim = 1536
             rng = np.random.default_rng(seed=hash(query_text) % (2**32))
             vec = rng.normal(0, 0.1, dim)
@@ -176,8 +176,8 @@ class RAGPipeline:
     def generate_answer(self, query_text: str, chunks: List[ChunkResult]) -> str:
         """Ultra-fast response generation using Groq Llama-3.1-8b-instant (<100ms generation)."""
         groq_key = os.getenv("GROQ_API_KEY")
-        if not groq_key:
-            # Local fallback response if key is missing
+        if not groq_key or "your_" in groq_key or "placeholder" in groq_key:
+            # Local fallback response if key is missing or dummy
             return f"[Mock response for '{query_text}'] Context grounded answer is simulated here."
 
         # Compile retrieved chunks

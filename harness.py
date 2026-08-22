@@ -89,7 +89,7 @@ class RAGPipeline:
                     "Authorization": f"Bearer {groq_key}"
                 }
                 files = {
-                    "file": ("audio.wav", audio_bytes, "audio/wav")
+                    "file": ("audio.webm", audio_bytes, "audio/webm")
                 }
                 data = {
                     "model": "whisper-large-v3-turbo",
@@ -115,7 +115,7 @@ class RAGPipeline:
             "xi-api-key": api_key
         }
         files = {
-            "file": ("audio.wav", audio_bytes, "audio/wav")
+            "file": ("audio.webm", audio_bytes, "audio/webm")
         }
         data = {
             "model_id": "scribe_v2"

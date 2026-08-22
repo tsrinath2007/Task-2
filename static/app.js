@@ -55,7 +55,7 @@ async function setupRecorder() {
 
         mediaRecorder.onstop = async () => {
             // Securely create and store the latest audio blob
-            const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+            const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
             audioChunks = [];
             latestAudioBlob = audioBlob;
             
@@ -167,7 +167,7 @@ async function submitPipelineQuery(text, audioBlob) {
     if (text) {
         formData.append("query_text", text);
     } else if (audioBlob) {
-        formData.append("file", audioBlob, "query.wav");
+        formData.append("file", audioBlob, "query.webm");
     }
 
     try {

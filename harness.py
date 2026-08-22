@@ -113,10 +113,13 @@ class RAGPipeline:
         has_groq = bool(groq_key and "your_" not in groq_key and "placeholder" not in groq_key)
         has_eleven = bool(eleven_key and "your_" not in eleven_key and "placeholder" not in eleven_key)
 
-        print(f"[STT DEBUG] ENV_PATH='{ENV_PATH}', has_groq={has_groq}, has_eleven={has_eleven}")
+        print(f"[STT DEBUG] ENV_PATH='{ENV_PATH}', has_groq={has_groq}, has_eleven={has_eleven}, audio_bytes_len={len(audio_bytes)}")
 
         if not has_groq and not has_eleven:
             return ("Speech-to-text is not configured on this server (missing API key).", "Not Configured")
+
+        if len(audio_bytes) < 100:
+            return ("No speech detected in your recording. Please try speaking clearly.", "Groq Whisper")
 
         errors = []
 
@@ -403,9 +406,9 @@ class RAGPipeline:
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=6))
     def generate_answer(self, query_text: str, chunks: List[ChunkResult]) -> str:
         """Ultra-fast response generation using Groq Llama-3.1-8b-instant, falling back to OpenAI."""
-        load_dotenv(override=True)
-        groq_key = os.getenv("GROQ_API_KEY")
-        openai_key = os.getenv("OPENAI_API_KEY")
+        load_dotenv(ENV_PATH, override=True)
+        groq_key = os.getenv("GROQ_API_KEY") or os.environ.get("GROQ_API_KEY")
+        openai_key = os.getenv("OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY")
         
         # Compile retrieved chunks
         context = "\n\n".join([f"Passage {i+1}: {c.text}" for i, c in enumerate(chunks)])

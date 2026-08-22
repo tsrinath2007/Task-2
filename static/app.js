@@ -3,7 +3,6 @@ let audioChunks = [];
 let isRecording = false;
 let recordStartTime;
 let timerInterval;
-let chartInstance = null;
 let latestAudioBlob = null; // Stably store recorded blob to prevent closure bugs
 
 // DOM Elements
@@ -341,72 +340,7 @@ function renderPipelineResponse(data, audioBlob = null) {
         }
     }
 
-    // Refresh chart with timings
-    renderLatencyChart(timings);
     if (audioBlob && recordStatus) recordStatus.textContent = "Speak Now";
-}
-
-// Draw Latency Chart matching design tokens
-function renderLatencyChart(timings) {
-    const ctx = document.getElementById("latencyChart").getContext("2d");
-    
-    const labels = ["STT", "Embed", "Search", "LLM Gen", "Guardrails"];
-    const values = [
-        timings.stt_ms,
-        timings.embed_ms,
-        timings.retrieve_ms,
-        timings.llm_generate_ms,
-        timings.guardrails_ms
-    ];
-
-    if (chartInstance) {
-        chartInstance.destroy();
-    }
-
-    chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                data: values,
-                backgroundColor: [
-                    'rgba(255, 46, 126, 0.75)',  // Pink - STT
-                    'rgba(255, 201, 60, 0.75)',  // Gold - Embed
-                    'rgba(46, 217, 160, 0.75)',  // Mint - Search
-                    'rgba(96, 165, 250, 0.75)',  // Blue - LLM Gen
-                    'rgba(159, 184, 172, 0.75)'  // Muted green - Guardrails
-                ],
-                borderColor: [
-                    '#FF2E7E', '#FFC93C', '#2ED9A0', '#60A5FA', '#9FB8AC'
-                ],
-                borderWidth: 1.5,
-                borderRadius: 4
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: (context) => ` ${context.parsed.x.toFixed(1)} ms`
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                    ticks: { color: '#9FB8AC', font: { size: 9, family: 'JetBrains Mono' } }
-                },
-                y: {
-                    grid: { display: false },
-                    ticks: { color: '#F3F1E7', font: { weight: 'bold', size: 10 } }
-                }
-            }
-        }
-    });
 }
 
 // Fetch and display P50/P70/P100 analytics
@@ -478,11 +412,6 @@ if (resetBtn) {
                 if (latencyBarFill) {
                     latencyBarFill.style.width = "0%";
                     latencyBarFill.classList.remove("bg-[#2ED9A0]", "bg-[#FF2E7E]");
-                }
-                
-                if (chartInstance) {
-                    chartInstance.destroy();
-                    chartInstance = null;
                 }
             } catch (err) {
                 console.error("Reset failed:", err);

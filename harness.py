@@ -101,7 +101,8 @@ class RAGPipeline:
                 text = res_data.get("text", "").strip()
                 return text if text else "No speech detected in audio."
             except Exception as e:
-                print(f"Groq transcription failed: {e}. Trying ElevenLabs...")
+                err_detail = getattr(getattr(e, 'response', None), 'text', str(e))
+                print(f"Groq transcription failed ({e}): {err_detail}. Trying ElevenLabs...")
 
         # 2. Fallback to ElevenLabs STT
         api_key = os.getenv("ELEVENLABS_API_KEY")

@@ -45,17 +45,27 @@ if (thresholdInput && thresholdVal) {
 async function setupRecorder() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
+        
+        let mimeType = "audio/webm";
+        if (MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) {
+            mimeType = "audio/webm;codecs=opus";
+        } else if (MediaRecorder.isTypeSupported("audio/webm")) {
+            mimeType = "audio/webm";
+        } else if (MediaRecorder.isTypeSupported("audio/mp4")) {
+            mimeType = "audio/mp4";
+        }
+
+        mediaRecorder = new MediaRecorder(stream, { mimeType });
         
         mediaRecorder.ondataavailable = (event) => {
-            if (event.data.size > 0) {
+            if (event.data && event.data.size > 0) {
                 audioChunks.push(event.data);
             }
         };
 
         mediaRecorder.onstop = async () => {
             // Securely create and store the latest audio blob
-            const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+            const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || "audio/webm" });
             audioChunks = [];
             latestAudioBlob = audioBlob;
             
@@ -81,7 +91,7 @@ function startRecording() {
     isRecording = true;
     audioChunks = [];
     latestAudioBlob = null;
-    mediaRecorder.start();
+    mediaRecorder.start(100);
     
     // UI state: Turn to warning pink-red, start waveform pulse
     recordBtn.classList.remove("bg-[#FFC93C]", "text-[#0F3D2E]", "hover:bg-[#ffe180]");

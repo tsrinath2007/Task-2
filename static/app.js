@@ -295,6 +295,12 @@ function renderPipelineResponse(data, audioBlob = null) {
     const timings = data.latency_breakdown;
     const coreLatency = timings.embed_ms + timings.retrieve_ms + timings.llm_generate_ms + timings.guardrails_ms;
 
+    // STT Provider Badge update
+    const sttProviderBadge = document.getElementById("stt-provider-badge");
+    if (sttProviderBadge && timings.stt_provider) {
+        sttProviderBadge.textContent = `STT: ${timings.stt_provider}`;
+    }
+
     // Timing status badge ONLINE
     const timingStatusBadge = document.getElementById("timing-status-badge");
     if (timingStatusBadge) {

@@ -31,6 +31,7 @@ class LatencyBreakdown(BaseModel):
     llm_generate_ms: float = 0.0
     guardrails_ms: float = 0.0
     total_ms: float = 0.0
+    stt_provider: str = "N/A"
 
 class GuardrailResults(BaseModel):
     safe: bool
@@ -54,7 +55,29 @@ class RAGPipeline:
         self.index_path = index_path
         self.embeddings = None
         self.metadata = []
+        self.log_environment_keys()
         self.load_index()
+
+    def log_environment_keys(self):
+        """Logs presence vs absence/placeholder state of API keys for deployment visibility."""
+        load_dotenv(override=True)
+        keys_to_check = {
+            "GROQ_API_KEY": os.getenv("GROQ_API_KEY"),
+            "ELEVENLABS_API_KEY": os.getenv("ELEVENLABS_API_KEY"),
+            "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY")
+        }
+        print("="*60)
+        print("[API KEY CONFIGURATION CHECK]")
+        for key_name, key_val in keys_to_check.items():
+            if not key_val:
+                status = "MISSING"
+            elif "your_" in key_val or "placeholder" in key_val:
+                status = "PLACEHOLDER (DUMMY)"
+            else:
+                masked = key_val[:6] + "..." + key_val[-4:] if len(key_val) > 10 else "***"
+                status = f"PRESENT ({masked})"
+            print(f"  - {key_name}: {status}")
+        print("="*60)
 
     def load_index(self):
         """Loads and pre-normalizes the vector database for sub-millisecond local search."""
@@ -78,11 +101,24 @@ class RAGPipeline:
         print(f"Loaded {len(self.metadata)} chunks.")
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=6))
-    def transcribe_audio_elevenlabs(self, audio_bytes: bytes) -> str:
-        """Transcribes audio using Groq Whisper first, falling back to ElevenLabs."""
-        # 1. Try Groq Speech-to-Text (Whisper) first for fast, reliable transcribing
+    def transcribe_audio_elevenlabs(self, audio_bytes: bytes) -> tuple:
+        """Transcribes audio using Groq Whisper first, falling back to ElevenLabs.
+        Returns tuple: (transcribed_text_or_error_message, stt_provider_name)
+        """
+        load_dotenv(override=True)
         groq_key = os.getenv("GROQ_API_KEY")
-        if groq_key and "your_" not in groq_key and "placeholder" not in groq_key:
+        eleven_key = os.getenv("ELEVENLABS_API_KEY")
+
+        has_groq = bool(groq_key and "your_" not in groq_key and "placeholder" not in groq_key)
+        has_eleven = bool(eleven_key and "your_" not in eleven_key and "placeholder" not in eleven_key)
+
+        if not has_groq and not has_eleven:
+            return ("Speech-to-text is not configured on this server (missing API key).", "Not Configured")
+
+        errors = []
+
+        # 1. Try Groq Speech-to-Text (Whisper) first for fast, reliable transcribing
+        if has_groq:
             try:
                 url = "https://api.groq.com/openai/v1/audio/transcriptions"
                 headers = {
@@ -99,36 +135,45 @@ class RAGPipeline:
                 response.raise_for_status()
                 res_data = response.json()
                 text = res_data.get("text", "").strip()
-                return text if text else "No speech detected in audio."
+                if text and text not in [".", ",", "Thank you."]:
+                    return (text, "Groq Whisper")
+                else:
+                    return ("No speech detected in your recording. Please try speaking clearly.", "Groq Whisper")
             except Exception as e:
                 err_detail = getattr(getattr(e, 'response', None), 'text', str(e))
-                print(f"Groq transcription failed ({e}): {err_detail}. Trying ElevenLabs...")
+                msg = f"Groq STT Error: {err_detail}"
+                print(f"[STT LOG] {msg}")
+                errors.append(msg)
 
         # 2. Fallback to ElevenLabs STT
-        api_key = os.getenv("ELEVENLABS_API_KEY")
-        if not api_key or "your_" in api_key or "placeholder" in api_key:
-            return "No speech detected in audio."
+        if has_eleven:
+            try:
+                url = "https://api.elevenlabs.io/v1/speech-to-text"
+                headers = {
+                    "xi-api-key": eleven_key
+                }
+                files = {
+                    "file": ("audio.webm", audio_bytes, "audio/webm")
+                }
+                data = {
+                    "model_id": "scribe_v2"
+                }
+                response = requests.post(url, headers=headers, files=files, data=data, timeout=20)
+                response.raise_for_status()
+                res_data = response.json()
+                text = res_data.get("text", "").strip()
+                if text:
+                    return (text, "ElevenLabs")
+                else:
+                    return ("No speech detected in your recording. Please try speaking clearly.", "ElevenLabs")
+            except Exception as e:
+                err_detail = getattr(getattr(e, 'response', None), 'text', str(e))
+                msg = f"ElevenLabs STT Error: {err_detail}"
+                print(f"[STT LOG] {msg}")
+                errors.append(msg)
 
-        url = "https://api.elevenlabs.io/v1/speech-to-text"
-        headers = {
-            "xi-api-key": api_key
-        }
-        files = {
-            "file": ("audio.webm", audio_bytes, "audio/webm")
-        }
-        data = {
-            "model_id": "scribe_v2"
-        }
-        
-        try:
-            response = requests.post(url, headers=headers, files=files, data=data, timeout=20)
-            response.raise_for_status()
-            res_data = response.json()
-            text = res_data.get("text", "").strip()
-            return text if text else "No speech detected in audio."
-        except Exception as e:
-            print(f"ElevenLabs transcription failed: {e}")
-            return "No speech detected in audio."
+        provider_label = "Groq Whisper" if has_groq else ("ElevenLabs" if has_eleven else "Not Configured")
+        return ("; ".join(errors), provider_label)
 
     def get_query_embedding(self, query_text: str) -> np.ndarray:
         """Retrieves or simulates embeddings for the input query."""
@@ -484,32 +529,45 @@ Answer concisely in the same language as the user's query (usually Hindi or Engl
         llm_ms = 0.0
         guardrails_ms = 0.0
         
+        stt_provider = "N/A"
+        
         # 1. Speech-to-Text Step (if audio is provided)
         if audio_bytes:
             t0 = time.time()
             try:
-                query_text = self.transcribe_audio_elevenlabs(audio_bytes)
+                (query_text, stt_provider) = self.transcribe_audio_elevenlabs(audio_bytes)
                 stt_ms = (time.time() - t0) * 1000
             except Exception as e:
-                # If STT fails, we raise an error since STT is critical for the voice pipeline
                 pipeline_total = (time.time() - t_pipeline_start) * 1000
                 return RAGResponse(
                     query_text="",
                     response_text=f"STT Error: {str(e)}",
                     status="error",
-                    latency_breakdown=LatencyBreakdown(stt_ms=(time.time() - t0)*1000, total_ms=pipeline_total),
+                    latency_breakdown=LatencyBreakdown(stt_ms=(time.time() - t0)*1000, total_ms=pipeline_total, stt_provider="Error"),
                     retrieved_chunks=[],
                     guardrail_results=GuardrailResults(safe=False, safety_reason="STT fail", off_topic=False, grounded=False),
                     chunking_strategy_used=strategy
                 )
         
-        if not query_text or query_text == "No speech detected in audio.":
+        is_stt_error = (
+            not query_text or
+            query_text in [
+                "Speech-to-text is not configured on this server (missing API key).",
+                "No speech detected in your recording. Please try speaking clearly.",
+                "No speech detected in audio."
+            ] or
+            query_text.startswith("Groq STT Error:") or
+            query_text.startswith("ElevenLabs STT Error:")
+        )
+
+        if is_stt_error:
             pipeline_total = (time.time() - t_pipeline_start) * 1000
+            error_msg = query_text if query_text else "Error: No query text or audio provided."
             return RAGResponse(
                 query_text="",
-                response_text="Speech was not detected in your recording. Please try speaking clearly into your microphone.",
+                response_text=error_msg,
                 status="error",
-                latency_breakdown=LatencyBreakdown(stt_ms=stt_ms, total_ms=pipeline_total),
+                latency_breakdown=LatencyBreakdown(stt_ms=stt_ms, total_ms=pipeline_total, stt_provider=stt_provider),
                 retrieved_chunks=[],
                 guardrail_results=GuardrailResults(safe=True, off_topic=False, grounded=False),
                 chunking_strategy_used=strategy

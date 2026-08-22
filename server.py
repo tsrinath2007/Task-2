@@ -30,6 +30,12 @@ try:
 except Exception as e:
     print(f"Warning during pipeline initialization: {e}")
 
+@app.on_event("startup")
+async def startup_event():
+    print("[SERVER STARTUP] Verifying API Key Configurations for Deployment...")
+    if pipeline:
+        pipeline.log_environment_keys()
+
 # Helper to calculate percentiles
 def get_percentile(data, q):
     if not data:

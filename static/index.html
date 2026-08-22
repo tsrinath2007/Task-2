@@ -293,7 +293,10 @@
                 <!-- Metrics Grid (4 columns) -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div class="bg-[#0C3426]/30 border border-white/5 rounded-xl p-4 flex flex-col justify-between">
-                        <span class="text-[9px] font-mono uppercase text-[#9FB8AC] tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-microphone text-[10px]"></i> VOICE CAPTURE</span>
+                        <div class="flex justify-between items-center gap-1">
+                            <span class="text-[9px] font-mono uppercase text-[#9FB8AC] tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-microphone text-[10px]"></i> VOICE CAPTURE</span>
+                            <span id="stt-provider-badge" class="text-[8px] font-mono text-[#FFC93C]/80 font-bold px-1.5 py-0.5 bg-black/40 rounded border border-white/10">STT: N/A</span>
+                        </div>
                         <span id="metric-stt" class="text-2xl font-bold font-mono text-[#F3F1E7] mt-1.5">0 ms</span>
                     </div>
                     <div class="bg-[#0C3426]/30 border border-white/5 rounded-xl p-4 flex flex-col justify-between">

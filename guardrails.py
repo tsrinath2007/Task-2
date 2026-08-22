@@ -59,14 +59,19 @@ def check_groundedness(query_text: str, retrieved_chunks: list, generated_answer
     Constrained to 1-token output (YES/NO) on Groq for ultra-low latency (<80ms).
     """
     t0 = time.time()
+    load_dotenv(override=True)
     groq_key = os.getenv("GROQ_API_KEY")
+    openai_key = os.getenv("OPENAI_API_KEY")
     
-    if not groq_key or "your_" in groq_key or "placeholder" in groq_key:
-        # Dry-run fallback if no keys configured or dummy keys
+    use_groq = groq_key and "your_" not in groq_key and "placeholder" not in groq_key
+    use_openai = openai_key and "your_" not in openai_key and "placeholder" not in openai_key
+    
+    if not use_groq and not use_openai:
+        # Skip if both keys missing
         return {
             "grounded": True,
             "score": 1.0,
-            "reason": "Skip groundedness check (GROQ_API_KEY missing)",
+            "reason": "Skip groundedness check (keys missing)",
             "latency_ms": (time.time() - t0) * 1000
         }
         
@@ -86,27 +91,33 @@ GENERATED_ANSWER:
 
 GROUNDED (YES or NO):"""
 
-    headers = {
-        "Authorization": f"Bearer {groq_key}",
-        "Content-Type": "application/json"
-    }
-    
-    payload = {
-        "model": "llama-3.1-8b-instant",
-        "messages": [
-            {"role": "user", "content": prompt}
-        ],
-        "temperature": 0.0,
-        "max_tokens": 2  # Keep it ultra short
-    }
-    
+    if use_groq:
+        headers = {
+            "Authorization": f"Bearer {groq_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": "llama-3.1-8b-instant",
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.0,
+            "max_tokens": 2
+        }
+        url = "https://api.groq.com/openai/v1/chat/completions"
+    else:
+        headers = {
+            "Authorization": f"Bearer {openai_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": "gpt-4o-mini",
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.0,
+            "max_tokens": 2
+        }
+        url = "https://api.openai.com/v1/chat/completions"
+        
     try:
-        response = requests.post(
-            "https://api.groq.com/openai/v1/chat/completions",
-            headers=headers,
-            json=payload,
-            timeout=5
-        )
+        response = requests.post(url, headers=headers, json=payload, timeout=5)
         response.raise_for_status()
         res_json = response.json()
         decision = res_json["choices"][0]["message"]["content"].strip().upper()

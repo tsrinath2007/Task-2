@@ -319,23 +319,23 @@ function renderPipelineResponse(data, audioBlob = null) {
             }
             
             return `
-                <div class="p-5 bg-[#0C3426]/30 border ${chunk.is_selected ? 'border-[#FFC93C]/40 bg-[#FFC93C]/5 shadow-[#FFC93C]/5' : 'border-white/5'} rounded-xl shadow-inner transition hover:border-white/10 duration-200">
+                <div class="p-5 bg-[#0C3426]/40 border ${chunk.is_selected ? 'border-[#FFC93C]/40 bg-[#FFC93C]/10 shadow-[#FFC93C]/10' : 'border-white/10'} rounded-2xl backdrop-blur-md transition hover:border-white/20 duration-200">
                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3">
                         <div class="flex flex-wrap items-center gap-2">
-                            <span class="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[10px] font-mono font-bold text-white">#${idx + 1}</span>
-                            <span class="px-2.5 py-0.5 rounded text-[9px] font-mono font-bold text-white ${strategyColor} flex items-center gap-1">
+                            <span class="px-2.5 py-0.5 bg-white/10 border border-white/15 rounded-lg text-[10px] font-mono font-bold text-white">#${idx + 1}</span>
+                            <span class="px-2.5 py-0.5 rounded-lg text-[10px] font-mono font-bold text-white ${strategyColor} flex items-center gap-1.5">
                                 <span class="h-1.5 w-1.5 rounded-full bg-white"></span> ${strategyTag.toUpperCase()}
                             </span>
-                            ${chunk.is_selected ? '<span class="px-2.5 py-0.5 border border-[#3B82F6] text-[#60A5FA] rounded text-[9px] font-mono font-bold uppercase tracking-wider">CITED BY LLM</span>' : ''}
+                            ${chunk.is_selected ? '<span class="px-2.5 py-0.5 border border-[#3B82F6] text-[#60A5FA] bg-[#3B82F6]/10 rounded-lg text-[9px] font-mono font-bold uppercase tracking-wider">CITED BY LLM</span>' : ''}
                         </div>
-                        <div class="text-left sm:text-right font-mono text-[11px]">
-                            <span class="text-[#9FB8AC] mr-3">Score: <span class="text-[#FFC93C] font-bold">${chunk.score.toFixed(4)}</span></span>
-                            <span class="text-[#9FB8AC]">Parent: <span class="text-[#F3F1E7] font-semibold">${String(chunk.query_id || "81121b80").substring(0, 8)}:${chunk.passage_index}</span></span>
+                        <div class="text-left sm:text-right font-mono text-xs">
+                            <span class="text-[#9FB8AC] mr-3">Score: <span class="text-[#FFC93C] font-bold">${chunk.score.toFixed(3)}</span></span>
+                            <span class="text-[#9FB8AC]">Parent: <span class="text-[#F3F1E7] font-semibold">${String(chunk.query_id || "1102432").substring(0, 8)}:${chunk.passage_index}</span></span>
                         </div>
                     </div>
                     <p class="text-sm text-[#F3F1E7] leading-relaxed font-body mb-3">${chunk.text}</p>
                     <div class="text-left">
-                        <span class="text-[9px] font-mono font-bold text-[#FFC93C] hover:text-[#ffe180] tracking-wider uppercase cursor-pointer transition select-none">Click to view full text</span>
+                        <span class="text-[10px] font-mono font-bold text-[#FFC93C] hover:text-[#ffe180] tracking-wider uppercase cursor-pointer transition select-none">Click to view full text</span>
                     </div>
                 </div>
             `;

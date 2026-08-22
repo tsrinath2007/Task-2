@@ -54,12 +54,12 @@
             }
         }
 
-        /* Glassmorphism styling tokens from mockup */
+        /* Glassmorphism styling tokens matching Live Studio card */
         .glass-card {
-            background: rgba(11, 20, 32, 0.88);
+            background: linear-gradient(135deg, rgba(6, 44, 32, 0.75) 0%, rgba(15, 60, 44, 0.65) 100%), rgba(6, 44, 32, 0.4);
             backdrop-filter: blur(18px);
-            border: 1px solid rgba(255, 201, 60, 0.18);
-            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 1.5rem;
             box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
         }
         
@@ -79,12 +79,12 @@
     <!-- Main Container -->
     <div class="container mx-auto px-8 py-10 max-w-7xl relative">
         
-        <!-- Header: Logo and Get Your Voice Heard Button -->
-        <header class="mb-12 flex justify-between items-center pb-4">
-            <div class="flex items-center select-none">
+        <!-- Header: Logo and Get Your Voice Heard Button (Non-overlapping responsive layout) -->
+        <header class="mb-12 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 pb-4 relative z-10">
+            <div class="flex items-center select-none shrink-0">
                 <img src="/logo.png" class="h-10 md:h-12 object-contain" alt="Hacker House Goa">
             </div>
-            <div>
+            <div class="shrink-0">
                 <!-- Utility Call-To-Action Button with warning design stripes -->
                 <button class="relative bg-[#FFC93C] hover:bg-[#ffe180] text-[#0C3426] px-5 py-2.5 font-display font-bold uppercase tracking-wider text-xs shadow-md transition duration-200 focus:outline-none">
                     Get your voice heard
@@ -182,36 +182,34 @@
                         <div class="flex-grow border-t border-white/10"></div>
                     </div>
 
-                    <!-- Text input row -->
-                    <div class="flex gap-2">
-                        <input type="text" id="query-text-input" placeholder="What is the capital of India?" class="w-full bg-slate-900/80 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/50 focus:outline-none focus:border-[#FFC93C]">
-                        <button id="text-submit-btn" class="bg-amber-400 hover:bg-amber-300 text-black px-6 py-3 rounded-xl text-sm font-bold shadow-md transition">
+                    <!-- Text input row (Full width input with uncompressed Send button) -->
+                    <div class="flex flex-col sm:flex-row gap-3 w-full">
+                        <input type="text" id="query-text-input" placeholder="Ask anything..." class="w-full flex-1 bg-slate-900/80 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-white placeholder-white/50 focus:outline-none focus:border-[#FFC93C]">
+                        <button id="text-submit-btn" class="shrink-0 min-w-[100px] bg-amber-400 hover:bg-amber-300 text-black px-6 py-3.5 rounded-xl text-sm font-bold shadow-md transition flex items-center justify-center">
                             Send
                         </button>
                     </div>
                 </div>
 
-                <!-- Clickable Suggested Chips -->
+                <!-- Clickable Suggested Chips (Indexed MSMARCO-XI Questions) -->
                 <div class="mt-6">
                     <div class="flex flex-wrap gap-2">
-                        <span class="query-chip rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 cursor-pointer transition duration-150">What is the capital of India?</span>
-                        <span class="query-chip rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 cursor-pointer transition duration-150">How does photosynthesis work in plants?</span>
-                        <span class="query-chip rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 cursor-pointer transition duration-150">What are renewable energy sources?</span>
-                        <span class="query-chip rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 cursor-pointer transition duration-150">How do vaccines help the immune system?</span>
+                        <span class="query-chip rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 cursor-pointer transition duration-150">What is a corporation?</span>
+                        <span class="query-chip rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 cursor-pointer transition duration-150">What is the definition of honesty or integrity?</span>
+                        <span class="query-chip rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 cursor-pointer transition duration-150">What is the bottom front of a cargo ship?</span>
+                        <span class="query-chip rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 cursor-pointer transition duration-150">Why did Rachel Carson write An Obligation to Endure?</span>
                     </div>
                 </div>
             </div>
 
         </div>
 
-        </div>
-
-        <!-- Hidden Config: off-topic similarity threshold (kept at bottom for access) -->
-        <div class="glass-card px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
-            <span class="text-xs font-mono text-[#9FB8AC]">Off-Topic Similarity Threshold:</span>
-            <div class="flex items-center gap-4 w-full sm:w-72">
-                <input type="range" id="threshold" min="0.10" max="0.80" step="0.05" value="0.35" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#FFC93C]">
-                <span id="threshold-val" class="text-xs font-bold font-mono bg-[#0C3426] px-2.5 py-1 rounded text-[#FFC93C] border border-white/5 w-10 text-center">0.35</span>
+        <!-- Similarity Threshold Config Card (Consistent Glassmorphic styling) -->
+        <div class="glass-card px-8 py-5 flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
+            <span class="text-sm font-semibold text-[#F3F1E7]">Off-Topic Similarity Threshold:</span>
+            <div class="flex items-center gap-4 w-full sm:w-80">
+                <input type="range" id="threshold" min="0.10" max="0.80" step="0.05" value="0.35" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#FFC93C]">
+                <span id="threshold-val" class="text-xs font-bold font-mono bg-[#0C3426] px-3 py-1 rounded-lg text-[#FFC93C] border border-white/10 w-12 text-center">0.35</span>
             </div>
         </div>
 

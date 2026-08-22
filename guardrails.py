@@ -76,7 +76,7 @@ def check_groundedness(query_text: str, retrieved_chunks: list, generated_answer
         }
         
     # Combine chunks to form reference context
-    context = "\n---\n".join([c["text"] for c in retrieved_chunks])
+    context = "\n---\n".join([getattr(c, "text", str(c)) if not isinstance(c, dict) else c["text"] for c in retrieved_chunks])
     
     prompt = f"""
 Analyze if the GENERATED_ANSWER is supported by the CONTEXT.

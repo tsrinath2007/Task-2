@@ -79,6 +79,7 @@ class RAGPipeline:
         self.index_path = index_path
         self.embeddings = None
         self.metadata = []
+        self._openai_disabled = True
         self.log_environment_keys()
         self.load_index()
 
@@ -500,7 +501,7 @@ Answer concisely in the same language as the user's query (usually Hindi or Engl
                         "https://api.groq.com/openai/v1/chat/completions",
                         headers=headers,
                         json=payload,
-                        timeout=3
+                        timeout=1.0
                     )
                     response.raise_for_status()
                     res_json = response.json()
@@ -508,7 +509,7 @@ Answer concisely in the same language as the user's query (usually Hindi or Engl
                     if ans:
                         return ans
                 except Exception as e:
-                    print(f"Groq model {model_name} generation failed: {e}. Trying next...")
+                    print(f"Groq model {model_name} generation failed ({e}). Extracting instant answer from passage...")
 
         # Fallback to OpenAI GPT-4o-mini
         if openai_key and "your_" not in openai_key and "placeholder" not in openai_key:

@@ -118,9 +118,11 @@ async function setupRecorder() {
             audioPlayback.src = audioUrl;
             audioPlayback.classList.remove("hidden");
 
-            // If WebSpeech transcribed live text, submit that text directly!
-            if (liveSpeechTranscript) {
-                const queryTextToSubmit = liveSpeechTranscript;
+            // Submit text directly if liveSpeechTranscript or queryTextInput is present
+            const currentInputValue = queryTextInput ? queryTextInput.value.trim() : "";
+            const queryTextToSubmit = liveSpeechTranscript || currentInputValue;
+
+            if (queryTextToSubmit) {
                 liveSpeechTranscript = "";
                 await submitPipelineQuery(queryTextToSubmit, null);
             } else {

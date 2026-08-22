@@ -12,7 +12,8 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 # Import Guardrails
 from guardrails import check_input_safety, check_off_topic, check_groundedness
 
-load_dotenv()
+ENV_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+load_dotenv(ENV_PATH, override=True)
 
 # Data models for Structured Input/Output Contracts
 class ChunkResult(BaseModel):
@@ -60,7 +61,7 @@ class RAGPipeline:
 
     def log_environment_keys(self):
         """Logs presence vs absence/placeholder state of API keys for deployment visibility."""
-        load_dotenv(override=True)
+        load_dotenv(ENV_PATH, override=True)
         keys_to_check = {
             "GROQ_API_KEY": os.getenv("GROQ_API_KEY"),
             "ELEVENLABS_API_KEY": os.getenv("ELEVENLABS_API_KEY"),
@@ -105,7 +106,7 @@ class RAGPipeline:
         """Transcribes audio using Groq Whisper first, falling back to ElevenLabs.
         Returns tuple: (transcribed_text_or_error_message, stt_provider_name)
         """
-        load_dotenv(override=True)
+        load_dotenv(ENV_PATH, override=True)
         groq_key = os.getenv("GROQ_API_KEY")
         eleven_key = os.getenv("ELEVENLABS_API_KEY")
 

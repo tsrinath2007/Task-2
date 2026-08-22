@@ -216,9 +216,11 @@ TEXT:
     except Exception as e:
         return {"translated_text": f"Translation failed: {str(e)}"}
 
-# Mount static folder
-os.makedirs("static", exist_ok=True)
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+# Mount static folder with absolute path for both local and cloud environments
+static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+os.makedirs(static_dir, exist_ok=True)
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+app.mount("/", StaticFiles(directory=static_dir, html=True), name="root_static")
 
 if __name__ == "__main__":
     import uvicorn

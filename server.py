@@ -48,6 +48,7 @@ def get_percentile(data, q):
     return float(np.percentile(data, q))
 
 @app.post("/api/query")
+@app.post("/query")
 async def query_endpoint(
     query_text: Optional[str] = Form(None),
     strategy: str = Form("sentence-aware"),
@@ -76,6 +77,7 @@ async def query_endpoint(
         raise HTTPException(status_code=500, detail=f"Pipeline error: {str(e)}")
 
 @app.get("/api/analytics")
+@app.get("/analytics")
 async def get_analytics():
     log_file = "latency_logs.json"
     if not os.path.exists(log_file):
@@ -153,6 +155,7 @@ async def get_analytics():
     }
 
 @app.post("/api/reset_analytics")
+@app.post("/reset_analytics")
 async def reset_analytics():
     log_file = "latency_logs.json"
     if os.path.exists(log_file):
@@ -168,6 +171,7 @@ class TranslateRequest(BaseModel):
     target_lang: str
 
 @app.post("/api/translate")
+@app.post("/translate")
 def translate_text(req: TranslateRequest):
     from dotenv import load_dotenv
     import requests

@@ -252,7 +252,7 @@ function renderPipelineResponse(data, audioBlob = null) {
         
         // Show EVIDENCE row and top chunk reference hash
         const firstChunk = data.retrieved_chunks[0];
-        const cleanId = (firstChunk.query_id || "81121b80").substring(0, 8);
+        const cleanId = String(firstChunk.query_id || "81121b80").substring(0, 8);
         const passageIdx = firstChunk.passage_index !== undefined ? firstChunk.passage_index : 0;
         
         evidCapsule.textContent = `[${passageIdx + 1}] ${cleanId}...`;
@@ -310,7 +310,7 @@ function renderPipelineResponse(data, audioBlob = null) {
                         </div>
                         <div class="text-left sm:text-right font-mono text-[11px]">
                             <span class="text-[#9FB8AC] mr-3">Score: <span class="text-[#FFC93C] font-bold">${chunk.score.toFixed(4)}</span></span>
-                            <span class="text-[#9FB8AC]">Parent: <span class="text-[#F3F1E7] font-semibold">${chunk.query_id.substring(0, 8)}:${chunk.passage_index}</span></span>
+                            <span class="text-[#9FB8AC]">Parent: <span class="text-[#F3F1E7] font-semibold">${String(chunk.query_id || "81121b80").substring(0, 8)}:${chunk.passage_index}</span></span>
                         </div>
                     </div>
                     <p class="text-sm text-[#F3F1E7] leading-relaxed font-body mb-3">${chunk.text}</p>

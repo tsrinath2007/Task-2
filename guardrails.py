@@ -97,7 +97,7 @@ GROUNDED (YES or NO):"""
             "Content-Type": "application/json"
         }
         payload = {
-            "model": "llama-3.1-8b-instant",
+            "model": "groq/compound-mini",
             "messages": [{"role": "user", "content": prompt}],
             "temperature": 0.0,
             "max_tokens": 2

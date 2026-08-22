@@ -295,7 +295,7 @@ Answer concisely in the same language as the user's query (usually Hindi or Engl
                     "Content-Type": "application/json"
                 }
                 payload = {
-                    "model": "llama-3.1-8b-instant",
+                    "model": "groq/compound-mini",
                     "messages": [
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_content}

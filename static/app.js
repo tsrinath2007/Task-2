@@ -5,7 +5,13 @@ let recordStartTime;
 let timerInterval;
 let latestAudioBlob = null; // Stably store recorded blob to prevent closure bugs
 
+// Translation State
+let originalAnswerText = "";
+let translatedAnswerText = "";
+let isCurrentlyTranslated = false;
+
 // DOM Elements
+const translateBtn = document.getElementById("translate-btn");
 const recordBtn = document.getElementById("record-btn");
 const recordIcon = document.getElementById("record-icon");
 const recordStatus = document.getElementById("record-status");
@@ -196,6 +202,21 @@ function renderPipelineResponse(data, audioBlob = null) {
         outResponse.className = "text-[#F3F1E7] text-lg font-medium leading-relaxed";
     }
     outResponse.textContent = data.response_text;
+
+    // Reset translation state for new query response
+    originalAnswerText = data.response_text;
+    translatedAnswerText = "";
+    isCurrentlyTranslated = false;
+    
+    if (translateBtn) {
+        if (data.status === "success") {
+            const isHindi = /[\u0900-\u097F]/.test(data.response_text);
+            translateBtn.textContent = isHindi ? "Translate to English" : "Translate to Hindi";
+            translateBtn.classList.remove("hidden");
+        } else {
+            translateBtn.classList.add("hidden");
+        }
+    }
 
     // Latency details
     const timings = data.latency_breakdown;
@@ -389,6 +410,11 @@ if (resetBtn) {
                 guardrailBadges.innerHTML = "";
                 outputCard.className = "lg:col-span-12 glass-card p-8 transition-all duration-300";
                 
+                if (translateBtn) translateBtn.classList.add("hidden");
+                originalAnswerText = "";
+                translatedAnswerText = "";
+                isCurrentlyTranslated = false;
+                
                 // Hide new sub-badges
                 document.getElementById("confidence-badge").classList.add("hidden");
                 document.getElementById("evidence-badge").classList.add("hidden");
@@ -415,6 +441,54 @@ if (resetBtn) {
                 }
             } catch (err) {
                 console.error("Reset failed:", err);
+            }
+        }
+    });
+}
+
+// Bind Translate Button Handler
+if (translateBtn) {
+    translateBtn.addEventListener("click", async () => {
+        if (isCurrentlyTranslated) {
+            // Restore Original Text
+            outResponse.textContent = originalAnswerText;
+            isCurrentlyTranslated = false;
+            const isHindi = /[\u0900-\u097F]/.test(originalAnswerText);
+            translateBtn.textContent = isHindi ? "Translate to English" : "Translate to Hindi";
+        } else {
+            if (translatedAnswerText) {
+                // Show Cached Translation
+                outResponse.textContent = translatedAnswerText;
+                isCurrentlyTranslated = true;
+                translateBtn.textContent = "Show Original";
+            } else {
+                const currentText = outResponse.textContent;
+                const isHindi = /[\u0900-\u097F]/.test(currentText);
+                const targetLang = isHindi ? "english" : "hindi";
+                
+                translateBtn.textContent = "Translating...";
+                translateBtn.disabled = true;
+                
+                try {
+                    const res = await fetch("/api/translate", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ text: currentText, target_lang: targetLang })
+                    });
+                    const data = await res.json();
+                    translatedAnswerText = data.translated_text;
+                    outResponse.textContent = translatedAnswerText;
+                    isCurrentlyTranslated = true;
+                    translateBtn.textContent = "Show Original";
+                } catch (err) {
+                    console.error("Translation request failed:", err);
+                    translateBtn.textContent = "Error";
+                    setTimeout(() => {
+                        translateBtn.textContent = isHindi ? "Translate to English" : "Translate to Hindi";
+                    }, 2000);
+                } finally {
+                    translateBtn.disabled = false;
+                }
             }
         }
     });

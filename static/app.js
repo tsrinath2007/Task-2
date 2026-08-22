@@ -41,8 +41,42 @@ if (thresholdInput && thresholdVal) {
     });
 }
 
+let speechRecognizer = null;
+let liveSpeechTranscript = "";
+
+// Initialize WebSpeechAPI if supported by browser
+function setupSpeechRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+        try {
+            speechRecognizer = new SpeechRecognition();
+            speechRecognizer.continuous = true;
+            speechRecognizer.interimResults = true;
+            speechRecognizer.lang = "en-US";
+
+            speechRecognizer.onresult = (event) => {
+                let current = "";
+                for (let i = 0; i < event.results.length; i++) {
+                    current += event.results[i][0].transcript + " ";
+                }
+                if (current.trim()) {
+                    liveSpeechTranscript = current.trim();
+                    if (queryTextInput) queryTextInput.value = liveSpeechTranscript;
+                }
+            };
+
+            speechRecognizer.onerror = (err) => {
+                console.warn("SpeechRecognition error:", err);
+            };
+        } catch (e) {
+            console.warn("SpeechRecognition init failed:", e);
+        }
+    }
+}
+
 // Setup audio recorder
 async function setupRecorder() {
+    setupSpeechRecognition();
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         
@@ -74,8 +108,14 @@ async function setupRecorder() {
             audioPlayback.src = audioUrl;
             audioPlayback.classList.remove("hidden");
 
-            // Process recording and execute pipeline
-            await submitPipelineQuery(null, latestAudioBlob);
+            // If WebSpeech transcribed live text, submit that text directly!
+            if (liveSpeechTranscript) {
+                const queryTextToSubmit = liveSpeechTranscript;
+                liveSpeechTranscript = "";
+                await submitPipelineQuery(queryTextToSubmit, null);
+            } else {
+                await submitPipelineQuery(null, latestAudioBlob);
+            }
         };
     } catch (err) {
         console.error("Error accessing microphone:", err);
@@ -91,6 +131,12 @@ function startRecording() {
     isRecording = true;
     audioChunks = [];
     latestAudioBlob = null;
+    liveSpeechTranscript = "";
+    
+    if (speechRecognizer) {
+        try { speechRecognizer.start(); } catch(e) {}
+    }
+    
     mediaRecorder.start(100);
     
     // UI state: Turn to warning pink-red, start waveform pulse
@@ -115,6 +161,9 @@ function startRecording() {
 // Stop recording (reverts back to gold pill, hides waveform)
 function stopRecording() {
     isRecording = false;
+    if (speechRecognizer) {
+        try { speechRecognizer.stop(); } catch(e) {}
+    }
     mediaRecorder.stop();
     
     // Revert UI State back to Gold

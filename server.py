@@ -49,6 +49,7 @@ async def query_endpoint(
     audio_bytes = None
     if file:
         audio_bytes = await file.read()
+        print(f"[SERVER DEBUG] Received audio upload: filename='{file.filename}', content_type='{file.content_type}', size={len(audio_bytes)} bytes")
 
     try:
         response = pipeline.run_pipeline(

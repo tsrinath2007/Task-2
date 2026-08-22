@@ -506,5 +506,4 @@ document.querySelectorAll(".query-chip").forEach(chip => {
 });
 
 // Setup audio and analytics on load
-setupRecorder();
 updateAnalytics();

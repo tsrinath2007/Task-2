@@ -203,6 +203,20 @@ function renderPipelineResponse(data, audioBlob = null) {
     }
     outResponse.textContent = data.response_text;
 
+    // Display transcribed voice input in the text input box and response badge
+    const voiceContainer = document.getElementById("voice-transcript-container");
+    const voiceText = document.getElementById("voice-transcript-text");
+    
+    if (data.query_text) {
+        if (queryTextInput) queryTextInput.value = data.query_text;
+        if (voiceContainer && voiceText) {
+            voiceText.textContent = `"${data.query_text}"`;
+            voiceContainer.classList.remove("hidden");
+        }
+    } else if (voiceContainer) {
+        voiceContainer.classList.add("hidden");
+    }
+
     // Reset translation state for new query response
     originalAnswerText = data.response_text;
     translatedAnswerText = "";
@@ -411,6 +425,8 @@ if (resetBtn) {
                 outputCard.className = "lg:col-span-12 glass-card p-8 transition-all duration-300";
                 
                 if (translateBtn) translateBtn.classList.add("hidden");
+                const voiceContainer = document.getElementById("voice-transcript-container");
+                if (voiceContainer) voiceContainer.classList.add("hidden");
                 originalAnswerText = "";
                 translatedAnswerText = "";
                 isCurrentlyTranslated = false;

@@ -118,14 +118,12 @@ async function setupRecorder() {
             audioPlayback.src = audioUrl;
             audioPlayback.classList.remove("hidden");
 
-            // Submit text directly if liveSpeechTranscript or queryTextInput is present
-            const currentInputValue = queryTextInput ? queryTextInput.value.trim() : "";
-            const queryTextToSubmit = liveSpeechTranscript || currentInputValue;
-
-            if (queryTextToSubmit) {
+            // Submit liveSpeechTranscript if browser WebSpeech captured it, otherwise submit the recorded audio blob
+            if (liveSpeechTranscript) {
+                const textToSubmit = liveSpeechTranscript;
                 liveSpeechTranscript = "";
-                await submitPipelineQuery(queryTextToSubmit, null);
-            } else {
+                await submitPipelineQuery(textToSubmit, null);
+            } else if (latestAudioBlob && latestAudioBlob.size > 0) {
                 await submitPipelineQuery(null, latestAudioBlob);
             }
         };
@@ -144,6 +142,7 @@ function startRecording() {
     audioChunks = [];
     latestAudioBlob = null;
     liveSpeechTranscript = "";
+    if (queryTextInput) queryTextInput.value = "";
     
     if (speechRecognizer) {
         const languageSelect = document.getElementById("language-select");

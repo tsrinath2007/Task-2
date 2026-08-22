@@ -77,7 +77,7 @@
     </div>
 
     <!-- Main Container -->
-    <div class="container mx-auto px-6 py-8 max-w-7xl relative">
+    <div class="container mx-auto px-8 py-10 max-w-7xl relative">
         
         <!-- Header: Logo and Get Your Voice Heard Button -->
         <header class="mb-12 flex justify-between items-center pb-4">
@@ -97,16 +97,16 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch mb-12">
             
             <!-- Left Hero Card (Glass Panel) -->
-            <div class="lg:col-span-6 glass-card p-10 flex flex-col justify-between">
+            <div class="lg:col-span-6 bg-emerald-950/40 backdrop-blur-md border border-white/10 rounded-3xl p-10 flex flex-col justify-between">
                 <div>
                     <!-- Voice-Enabled RAG tag -->
                     <span class="inline-block px-3.5 py-1.5 border border-[#FFC93C]/35 text-[#FFC93C] rounded-full text-[10px] font-bold font-mono tracking-widest uppercase mb-8">
                         Voice-Enabled RAG
                     </span>
                     
-                    <!-- Headline Display Typography -->
-                    <h1 class="text-5xl md:text-6xl font-display font-bold leading-none text-[#F3F1E7] tracking-tight mb-6">
-                        Ask in your <br>voice. Get <br><span class="text-[#FFC93C]">grounded <br>answers.</span>
+                    <!-- Headline Display Typography (Cream Color) -->
+                    <h1 class="text-5xl md:text-6xl font-display font-bold leading-none text-[#F5EFC8] tracking-tight mb-6">
+                        Ask in your <br>voice. Get <br>grounded <br>answers.
                     </h1>
                     
                     <!-- Description -->
@@ -115,55 +115,52 @@
                     </p>
                 </div>
                 
-                <!-- Bottom Feature Indicators -->
+                <!-- Bottom Feature Indicators (Glass Cards Grid) -->
                 <div class="grid grid-cols-3 gap-4 border-t border-white/10 pt-6">
-                    <div>
-                        <span class="block text-xs font-bold text-[#F3F1E7]">Voice-first</span>
-                        <span class="block text-[9px] font-mono text-[#9FB8AC] uppercase tracking-wider mt-1">Hands-free Input</span>
+                    <div class="border border-white/15 rounded-xl bg-white/5 p-4 flex flex-col justify-between">
+                        <span class="block text-sm font-bold text-[#F3F1E7]">Voice-first</span>
+                        <span class="block text-[9px] font-mono text-[#9FB8AC] uppercase tracking-wider mt-1">HANDS-FREE INPUT</span>
                     </div>
-                    <div>
-                        <span class="block text-xs font-bold text-[#F3F1E7]">Grounded</span>
-                        <span class="block text-[9px] font-mono text-[#9FB8AC] uppercase tracking-wider mt-1">Evidence-backed</span>
+                    <div class="border border-white/15 rounded-xl bg-white/5 p-4 flex flex-col justify-between">
+                        <span class="block text-sm font-bold text-[#F3F1E7]">Grounded</span>
+                        <span class="block text-[9px] font-mono text-[#9FB8AC] uppercase tracking-wider mt-1">EVIDENCE-BACKED OUTPUT</span>
                     </div>
-                    <div>
-                        <span class="block text-xs font-bold text-[#F3F1E7]">Fast</span>
-                        <span class="block text-[9px] font-mono text-[#9FB8AC] uppercase tracking-wider mt-1">Low-latency</span>
+                    <div class="border border-white/15 rounded-xl bg-white/5 p-4 flex flex-col justify-between">
+                        <span class="block text-sm font-bold text-[#F3F1E7]">Fast</span>
+                        <span class="block text-[9px] font-mono text-[#9FB8AC] uppercase tracking-wider mt-1">LOW-LATENCY WORKFLOW</span>
                     </div>
                 </div>
             </div>
 
             <!-- Right Hero Card (Live Studio - Input Area) -->
-            <div class="lg:col-span-6 glass-card p-10 flex flex-col justify-between min-h-[460px]">
-                <div>
+            <div class="lg:col-span-6 bg-emerald-950/40 backdrop-blur-md border border-white/10 rounded-3xl p-10 flex flex-col justify-between min-h-[460px]">
+                <div class="space-y-6">
                     <!-- Card Header -->
-                    <div class="flex justify-between items-center mb-8 border-b border-white/5 pb-4">
+                    <div class="flex justify-between items-center border-b border-white/5 pb-4">
                         <span class="text-xs font-bold tracking-widest text-[#9FB8AC] font-mono">LIVE STUDIO</span>
                         <span class="px-3.5 py-1 bg-[#2ED9A0]/10 text-[#2ED9A0] border border-[#2ED9A0]/35 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider">
                             Query Ready
                         </span>
                     </div>
 
-                    <!-- Voice Controls Row -->
-                    <div class="flex flex-col sm:flex-row items-center gap-6 mb-8">
+                    <!-- Voice Controls Row (Speak Now and Voice Mode dropdown sitting side by side) -->
+                    <div class="flex flex-wrap items-center gap-4">
                         <!-- Gold pill Speak now button -->
-                        <button id="record-btn" class="flex items-center gap-3.5 bg-[#FFC93C] hover:bg-[#ffe180] text-[#0C3426] px-8 py-4.5 rounded-full font-display font-bold uppercase tracking-wider text-sm shadow-md transition duration-200 transform hover:scale-105 active:scale-95 focus:outline-none w-full sm:w-auto justify-center">
-                            <i id="record-icon" class="fa-solid fa-microphone text-base"></i>
+                        <button id="record-btn" class="flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-black px-6 py-3 rounded-full font-display font-bold uppercase tracking-wider text-xs shadow-md transition duration-200 transform hover:scale-105 active:scale-95 focus:outline-none w-fit justify-center">
+                            <i id="record-icon" class="fa-solid fa-microphone text-sm"></i>
                             <span id="record-status">Speak now</span>
                         </button>
 
-                        <!-- Strategy selector styled as VOICE MODE -->
-                        <div class="w-full sm:w-48">
-                            <label class="block text-[9px] font-bold text-[#9FB8AC] uppercase tracking-widest mb-1.5 font-mono">Voice Mode</label>
-                            <select id="strategy" class="w-full bg-[#0C3426] border border-white/10 rounded-lg px-3 py-2 text-xs text-[#F3F1E7] focus:outline-none focus:border-[#FFC93C] transition">
-                                <option value="sentence-aware">Sentence-Aware (Semantic)</option>
-                                <option value="fixed-overlap">Fixed-Size Chunks</option>
-                                <option value="structure-aware">Structure-Aware Chunks</option>
-                            </select>
-                        </div>
+                        <!-- Strategy selector styled as VOICE MODE dropdown pill -->
+                        <select id="strategy" class="bg-black/30 border border-white/10 rounded-full px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#FFC93C] transition w-fit cursor-pointer">
+                            <option value="sentence-aware" class="bg-[#0C3426]">English</option>
+                            <option value="fixed-overlap" class="bg-[#0C3426]">Fixed-Size</option>
+                            <option value="structure-aware" class="bg-[#0C3426]">Structure-Aware</option>
+                        </select>
                     </div>
 
                     <!-- Timer and recording soundwave animation -->
-                    <div class="flex items-center gap-4 mb-4 justify-center">
+                    <div class="flex items-center gap-4 justify-center">
                         <div id="recording-time" class="text-xs text-[#FF2E7E] font-mono font-bold tracking-widest bg-black/45 px-3 py-1 rounded-full hidden">00:00</div>
                         <div id="waveform" class="flex items-center gap-1.5 h-10 justify-center hidden">
                             <div class="wave-bar"></div>
@@ -176,34 +173,36 @@
                             <div class="wave-bar"></div>
                         </div>
                     </div>
-                    <audio id="audio-playback" class="w-full mb-6 hidden" controls></audio>
+                    <audio id="audio-playback" class="w-full hidden" controls></audio>
 
                     <!-- OR TYPE Divider -->
-                    <div class="flex items-center my-6">
+                    <div class="flex items-center">
                         <div class="flex-grow border-t border-white/10"></div>
-                        <span class="mx-4 text-[9px] font-bold text-[#9FB8AC] uppercase tracking-widest font-mono">OR TYPE</span>
+                        <span class="mx-4 text-xs uppercase tracking-wide text-white/50 font-mono">OR TYPE</span>
                         <div class="flex-grow border-t border-white/10"></div>
                     </div>
 
                     <!-- Text input row -->
-                    <div class="flex gap-2 mb-6">
-                        <input type="text" id="query-text-input" placeholder="Type query here..." class="w-full bg-[#0C3426]/60 border border-white/10 rounded-lg px-4 py-3 text-sm text-[#F3F1E7] placeholder-[#9FB8AC]/40 focus:outline-none focus:border-[#FFC93C]">
-                        <button id="text-submit-btn" class="bg-[#FFC93C] hover:bg-[#ffe180] text-[#0C3426] px-6 py-3 rounded-lg text-sm font-bold shadow-md transition">
+                    <div class="flex gap-2">
+                        <input type="text" id="query-text-input" placeholder="What is the capital of India?" class="w-full bg-slate-900/80 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/50 focus:outline-none focus:border-[#FFC93C]">
+                        <button id="text-submit-btn" class="bg-amber-400 hover:bg-amber-300 text-black px-6 py-3 rounded-xl text-sm font-bold shadow-md transition">
                             Send
                         </button>
                     </div>
                 </div>
 
                 <!-- Clickable Suggested Chips -->
-                <div>
-                    <div class="flex flex-wrap gap-2.5">
-                        <span class="query-chip border border-[#FFC93C]/20 text-[#9FB8AC] hover:border-[#FFC93C]/60 hover:text-[#F3F1E7] text-[10px] px-3.5 py-1.5 rounded-full cursor-pointer transition duration-150">What is a corporation?</span>
-                        <span class="query-chip border border-[#FFC93C]/20 text-[#9FB8AC] hover:border-[#FFC93C]/60 hover:text-[#F3F1E7] text-[10px] px-3.5 py-1.5 rounded-full cursor-pointer transition duration-150">कॉर्पोरेशन क्या है?</span>
-                        <span class="query-chip border border-[#FFC93C]/20 text-[#9FB8AC] hover:border-[#FFC93C]/60 hover:text-[#F3F1E7] text-[10px] px-3.5 py-1.5 rounded-full cursor-pointer transition duration-150">बैरल ओ स्लाइम क्या है?</span>
-                        <span class="query-chip border border-[#FFC93C]/20 text-[#9FB8AC] hover:border-[#FFC93C]/60 hover:text-[#F3F1E7] text-[10px] px-3.5 py-1.5 rounded-full cursor-pointer transition duration-150">परिवर्तक को परीक्षण पाइप से बदलने की लागत</span>
+                <div class="mt-6">
+                    <div class="flex flex-wrap gap-2">
+                        <span class="query-chip rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 cursor-pointer transition duration-150">What is the capital of India?</span>
+                        <span class="query-chip rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 cursor-pointer transition duration-150">How does photosynthesis work in plants?</span>
+                        <span class="query-chip rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 cursor-pointer transition duration-150">What are renewable energy sources?</span>
+                        <span class="query-chip rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 cursor-pointer transition duration-150">How do vaccines help the immune system?</span>
                     </div>
                 </div>
             </div>
+
+        </div>
 
         </div>
 

@@ -151,12 +151,16 @@
                             <span id="record-status">Speak now</span>
                         </button>
 
-                        <!-- Strategy selector styled as VOICE MODE dropdown pill -->
-                        <select id="strategy" class="bg-black/30 border border-white/10 rounded-full px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#FFC93C] transition w-fit cursor-pointer">
-                            <option value="sentence-aware" class="bg-[#0C3426]">English</option>
-                            <option value="fixed-overlap" class="bg-[#0C3426]">Fixed-Size</option>
-                            <option value="structure-aware" class="bg-[#0C3426]">Structure-Aware</option>
+                        <!-- Language Selector Dropdown -->
+                        <select id="language-select" class="bg-black/30 border border-white/10 rounded-full px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#FFC93C] transition w-fit cursor-pointer">
+                            <option value="en-US" class="bg-[#0C3426]">English</option>
+                            <option value="hi-IN" class="bg-[#0C3426]">Hindi</option>
+                            <option value="te-IN" class="bg-[#0C3426]">Telugu</option>
+                            <option value="ta-IN" class="bg-[#0C3426]">Tamil</option>
+                            <option value="kn-IN" class="bg-[#0C3426]">Kannada</option>
+                            <option value="ml-IN" class="bg-[#0C3426]">Malayalam</option>
                         </select>
+                        <input type="hidden" id="strategy" value="sentence-aware">
                     </div>
 
                     <!-- Timer and recording soundwave animation -->

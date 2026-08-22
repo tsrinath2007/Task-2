@@ -52,7 +52,17 @@ function setupSpeechRecognition() {
             speechRecognizer = new SpeechRecognition();
             speechRecognizer.continuous = true;
             speechRecognizer.interimResults = true;
-            speechRecognizer.lang = "en-US";
+            
+            const languageSelect = document.getElementById("language-select");
+            speechRecognizer.lang = languageSelect ? languageSelect.value : "en-US";
+
+            if (languageSelect) {
+                languageSelect.addEventListener("change", () => {
+                    if (speechRecognizer) {
+                        speechRecognizer.lang = languageSelect.value;
+                    }
+                });
+            }
 
             speechRecognizer.onresult = (event) => {
                 let current = "";
@@ -134,6 +144,8 @@ function startRecording() {
     liveSpeechTranscript = "";
     
     if (speechRecognizer) {
+        const languageSelect = document.getElementById("language-select");
+        if (languageSelect) speechRecognizer.lang = languageSelect.value;
         try { speechRecognizer.start(); } catch(e) {}
     }
     

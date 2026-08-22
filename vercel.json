@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "maxDuration": 60,
+  "builds": [
+    {
+      "src": "server.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxDuration": 60,
+        "includeFiles": [
+          "vector_index.npz",
+          "static/**",
+          "guardrails.py",
+          "harness.py"
+        ]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "server.py"
+    }
+  ]
+}

@@ -233,6 +233,7 @@ async function submitPipelineQuery(text, audioBlob) {
     outResponse.innerHTML = `<div class="flex items-center gap-2 text-[#FFC93C] font-semibold"><i class="fa-solid fa-spinner animate-spin"></i> Analyzing pipeline path...</div>`;
     guardrailBadges.innerHTML = "";
     
+    const formData = new FormData();
     const languageSelect = document.getElementById("language-select");
     formData.append("strategy", strategySelect ? strategySelect.value : "sentence-aware");
     formData.append("off_topic_threshold", thresholdInput ? thresholdInput.value : 0.35);
@@ -244,14 +245,19 @@ async function submitPipelineQuery(text, audioBlob) {
         formData.append("file", audioBlob, "query.webm");
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
+
     try {
         const res = await fetch("/api/query", {
             method: "POST",
-            body: formData
+            body: formData,
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
         
         if (!res.ok) {
-            const errDetail = await res.json();
+            const errDetail = await res.json().catch(() => ({ detail: "Server error occurred" }));
             throw new Error(errDetail.detail || "Server error occurred");
         }
         
@@ -259,8 +265,13 @@ async function submitPipelineQuery(text, audioBlob) {
         renderPipelineResponse(data, audioBlob);
         await updateAnalytics();
     } catch (err) {
-        outResponse.innerHTML = `<span class="text-[#FF2E7E] font-semibold"><i class="fa-solid fa-circle-exclamation"></i> Error: ${err.message}</span>`;
-        if (audioBlob && recordStatus) recordStatus.textContent = "Query failed";
+        clearTimeout(timeoutId);
+        if (err.name === "AbortError") {
+            outResponse.innerHTML = `<span class="text-[#FF2E7E] font-semibold"><i class="fa-solid fa-clock"></i> Request timed out (25s limit reached). Please retry your query.</span>`;
+        } else {
+            outResponse.innerHTML = `<span class="text-[#FF2E7E] font-semibold"><i class="fa-solid fa-circle-exclamation"></i> Error: ${err.message}</span>`;
+        }
+        if (audioBlob && recordStatus) recordStatus.textContent = "Query timed out";
     }
 }
 

@@ -826,29 +826,33 @@ Answer concisely in the same language as the user's query (usually Hindi or Engl
         return response
 
     def log_latency(self, response: RAGResponse):
-        """Appends the timing metrics of this query run to latency_logs.json."""
-        log_file = "latency_logs.json"
-        log_entry = {
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-            "query_text": response.query_text,
-            "status": response.status,
-            "chunking_strategy": response.chunking_strategy_used,
-            "timings": response.latency_breakdown.model_dump(),
-            "grounded": response.guardrail_results.grounded
-        }
-        
-        logs = []
-        if os.path.exists(log_file):
-            try:
-                with open(log_file, "r", encoding="utf-8") as f:
-                    logs = json.load(f)
-            except Exception:
-                logs = []
-                
-        logs.append(log_entry)
-        
+        """Appends the timing metrics of this query run to latency_logs.json in /tmp on Vercel or locally."""
         try:
+            if os.environ.get("VERCEL") or not os.access(".", os.W_OK):
+                log_file = "/tmp/latency_logs.json"
+            else:
+                log_file = "latency_logs.json"
+
+            log_entry = {
+                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "query_text": response.query_text,
+                "status": response.status,
+                "chunking_strategy": response.chunking_strategy_used,
+                "timings": response.latency_breakdown.model_dump(),
+                "grounded": response.guardrail_results.grounded
+            }
+            
+            logs = []
+            if os.path.exists(log_file):
+                try:
+                    with open(log_file, "r", encoding="utf-8") as f:
+                        logs = json.load(f)
+                except Exception:
+                    logs = []
+                    
+            logs.append(log_entry)
+            
             with open(log_file, "w", encoding="utf-8") as f:
                 json.dump(logs, f, indent=2, ensure_ascii=False)
         except Exception as e:
-            print(f"Failed to log latency: {e}")
+            print(f"[LATENCY LOG WARNING] Could not write to log file: {e}")

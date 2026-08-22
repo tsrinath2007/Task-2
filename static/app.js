@@ -17,7 +17,6 @@ const textSubmitBtn = document.getElementById("text-submit-btn");
 const strategySelect = document.getElementById("strategy");
 const thresholdInput = document.getElementById("threshold");
 const thresholdVal = document.getElementById("threshold-val");
-const outQuery = document.getElementById("out-query");
 const outResponse = document.getElementById("out-response");
 const outCoreLatency = document.getElementById("out-core-latency");
 const outTotalLatency = document.getElementById("out-total-latency");
@@ -153,7 +152,6 @@ if (queryTextInput) {
 // Core API Query Trigger
 async function submitPipelineQuery(text, audioBlob) {
     // Show spinner in response card
-    outQuery.textContent = text || "Audio Speech Input";
     outResponse.innerHTML = `<div class="flex items-center gap-2 text-[#FFC93C] font-semibold"><i class="fa-solid fa-spinner animate-spin"></i> Analyzing pipeline path...</div>`;
     guardrailBadges.innerHTML = "";
     

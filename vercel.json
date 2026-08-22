@@ -5,12 +5,8 @@
       "destination": "/static/$1"
     },
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index.py"
-    },
-    {
       "source": "/(.*)",
-      "destination": "/static/index.html"
+      "destination": "/api/index.py"
     }
   ]
 }

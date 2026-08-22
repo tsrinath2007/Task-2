@@ -266,7 +266,7 @@ function renderPipelineResponse(data, audioBlob = null) {
     const voiceContainer = document.getElementById("voice-transcript-container");
     const voiceText = document.getElementById("voice-transcript-text");
     
-    if (data.query_text) {
+    if (data.query_text && data.query_text !== "No speech detected in audio.") {
         if (queryTextInput) queryTextInput.value = data.query_text;
         if (voiceContainer && voiceText) {
             voiceText.textContent = `"${data.query_text}"`;

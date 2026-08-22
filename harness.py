@@ -503,15 +503,15 @@ Answer concisely in the same language as the user's query (usually Hindi or Engl
                     chunking_strategy_used=strategy
                 )
         
-        if not query_text:
+        if not query_text or query_text == "No speech detected in audio.":
             pipeline_total = (time.time() - t_pipeline_start) * 1000
             return RAGResponse(
                 query_text="",
-                response_text="Error: No query text or audio provided.",
+                response_text="Speech was not detected in your recording. Please try speaking clearly into your microphone.",
                 status="error",
-                latency_breakdown=LatencyBreakdown(total_ms=pipeline_total),
+                latency_breakdown=LatencyBreakdown(stt_ms=stt_ms, total_ms=pipeline_total),
                 retrieved_chunks=[],
-                guardrail_results=GuardrailResults(safe=False, safety_reason="No query", off_topic=False, grounded=False),
+                guardrail_results=GuardrailResults(safe=True, off_topic=False, grounded=False),
                 chunking_strategy_used=strategy
             )
 

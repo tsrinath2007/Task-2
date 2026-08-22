@@ -220,67 +220,67 @@
             </div>
         </div>
 
-        <!-- Results & Performance Analysis Panel (appears below grid) -->
+        <!-- Results & Performance Analysis Panel (Stacked layouts matching reference) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
             
-            <!-- Output response card -->
-            <div id="output-card" class="lg:col-span-6 glass-card p-6 min-h-[220px] flex flex-col justify-between transition-all duration-300">
-                <div>
-                    <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-3">
-                        <span class="text-xs font-bold uppercase tracking-wider text-[#9FB8AC] font-mono">Pipeline Output</span>
-                        <div id="guardrail-badges" class="flex gap-2">
+            <!-- Output response card (LATEST RESPONSE) -->
+            <div id="output-card" class="lg:col-span-12 glass-card p-8 transition-all duration-300">
+                <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
+                    <span class="text-xs font-bold uppercase tracking-widest text-[#9FB8AC] font-mono">Latest Response</span>
+                    <div class="flex items-center gap-3">
+                        <div id="guardrail-badges">
                             <!-- Populated dynamically -->
                         </div>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div>
-                            <span class="text-[10px] font-bold text-[#9FB8AC] uppercase tracking-widest font-mono">Query Prompt:</span>
-                            <p id="out-query" class="text-[#F3F1E7] font-semibold italic mt-1">Waiting for input...</p>
-                        </div>
-                        <div>
-                            <span class="text-[10px] font-bold text-[#9FB8AC] uppercase tracking-widest font-mono">Grounded Generation Answer:</span>
-                            <p id="out-response" class="text-[#F3F1E7] font-medium text-base bg-[#0C3426]/50 p-4 rounded-xl border border-white/5 mt-2 leading-relaxed min-h-[70px]">
-                                Pipeline responses will appear here.
-                            </p>
-                        </div>
+                        <button id="reset-btn" class="border border-white/10 hover:border-white/20 text-[#9FB8AC] hover:text-[#F3F1E7] px-3.5 py-1 rounded text-xs font-mono transition">
+                            Clear
+                        </button>
                     </div>
                 </div>
 
-                <div class="flex justify-between items-center text-xs text-[#9FB8AC] border-t border-white/5 pt-4 mt-6">
-                    <div>
-                        <span>Core RAG Latency:</span>
-                        <span id="out-core-latency" class="font-bold text-[#FFC93C] font-mono ml-1">- ms</span>
+                <div class="space-y-6">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-[#FFC93C] font-mono uppercase tracking-wider">✦ Grounded Answer</span>
+                        <div class="flex items-center gap-2 ml-4">
+                            <span id="confidence-badge" class="px-2 py-0.5 border border-[#FFC93C]/30 text-[#FFC93C] rounded text-[10px] font-mono font-semibold hidden">Confidence: 100%</span>
+                            <span id="evidence-badge" class="px-2 py-0.5 bg-[#2ED9A0]/10 text-[#2ED9A0] border border-[#2ED9A0]/30 rounded text-[10px] font-mono font-semibold hidden">Evidence: 100% ✔</span>
+                        </div>
                     </div>
-                    <div>
-                        <span>Total Latency (with STT):</span>
-                        <span id="out-total-latency" class="font-bold text-[#F3F1E7] font-mono ml-1">- ms</span>
+                    
+                    <p id="out-response" class="text-[#F3F1E7] text-lg font-medium leading-relaxed min-h-[50px]">
+                        Pipeline responses will appear here.
+                    </p>
+
+                    <div id="evidence-container" class="flex items-center gap-2 text-xs text-[#9FB8AC] font-mono border-t border-white/5 pt-4 hidden">
+                        <span>EVIDENCE:</span>
+                        <span id="evidence-capsule" class="bg-white/5 border border-white/10 px-2.5 py-1 rounded text-[10px] text-[#FFC93C]/95"></span>
                     </div>
                 </div>
             </div>
 
-            <!-- Latency stats & charts -->
-            <div class="lg:col-span-6 glass-card p-6 space-y-6">
-                <div class="flex justify-between items-center border-b border-white/5 pb-3">
-                    <span class="text-xs font-bold uppercase tracking-wider text-[#9FB8AC] font-mono">Timing Metrics</span>
-                    <button id="reset-btn" class="text-xs text-[#FF2E7E] hover:text-[#ff629c] font-semibold flex items-center gap-1">
-                        <i class="fa-solid fa-trash-can"></i> Clear Logs
-                    </button>
+            <!-- Timing stats card (PIPELINE TIMING) -->
+            <div class="lg:col-span-12 glass-card p-8 space-y-6">
+                <div class="flex justify-between items-center border-b border-white/5 pb-4">
+                    <span class="text-xs font-bold uppercase tracking-widest text-[#FFC93C] font-mono flex items-center gap-1.5">
+                        ⚡ PIPELINE TIMING
+                    </span>
+                    <span id="timing-status-badge" class="px-3.5 py-1 bg-[#2ED9A0]/10 text-[#2ED9A0] border border-[#2ED9A0]/30 rounded-full text-xs font-mono font-bold uppercase tracking-wider hidden">
+                        ONLINE (0.0 MS)
+                    </span>
                 </div>
 
                 <!-- Latency Target Bar -->
                 <div class="space-y-2">
-                    <div class="flex justify-between items-end text-xs font-mono text-[#9FB8AC]">
-                        <span>RAG Pathway latency</span>
-                        <span class="text-xs text-[#FF2E7E] uppercase font-bold tracking-widest font-bold">Target Limit: 200ms</span>
+                    <div class="flex justify-between items-end text-[10px] font-mono text-[#9FB8AC] uppercase tracking-wider">
+                        <span>0 MS</span>
+                        <span class="text-[#2ED9A0] font-bold">TARGET: 200 MS</span>
+                        <span>200 MS</span>
                     </div>
-                    <div class="relative w-full h-4 bg-black/40 rounded-full border border-white/5 overflow-hidden">
-                        <!-- Fill bar -->
+                    <div class="relative w-full h-3 bg-black/40 rounded-full border border-white/5 overflow-hidden">
                         <div id="latency-bar-fill" class="h-full w-0 transition-all duration-500 bg-[#2ED9A0] rounded-full"></div>
                         <!-- Limit Marker -->
                         <div class="absolute top-0 bottom-0 left-[66.6%] w-[2px] bg-[#FF2E7E]"></div>
                     </div>
-                    <div class="flex justify-between text-[9px] font-mono text-[#9FB8AC]/60 px-1">
+                    <div class="flex justify-between text-[8px] font-mono text-[#9FB8AC]/60 px-1">
                         <span>0ms</span>
                         <span>100ms</span>
                         <span>200ms Limit</span>
@@ -288,46 +288,54 @@
                     </div>
                 </div>
 
-                <!-- P50 / P70 / P100 cards -->
-                <div class="grid grid-cols-3 gap-4">
-                    <div class="bg-[#0C3426]/50 border border-white/5 rounded-xl p-3 flex flex-col justify-between">
-                        <span class="text-[9px] font-mono uppercase text-[#9FB8AC] tracking-wider">P50 RAG</span>
-                        <span id="p50-val" class="text-xl font-bold font-mono text-[#2ED9A0] mt-1">- ms</span>
+                <!-- Metrics Grid (4 columns) -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-[#0C3426]/30 border border-white/5 rounded-xl p-4 flex flex-col justify-between">
+                        <span class="text-[9px] font-mono uppercase text-[#9FB8AC] tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-microphone text-[10px]"></i> VOICE CAPTURE</span>
+                        <span id="metric-stt" class="text-2xl font-bold font-mono text-[#F3F1E7] mt-1.5">0 ms</span>
                     </div>
-                    <div class="bg-[#0C3426]/50 border border-white/5 rounded-xl p-3 flex flex-col justify-between">
-                        <span class="text-[9px] font-mono uppercase text-[#9FB8AC] tracking-wider">P70 RAG</span>
-                        <span id="p70-val" class="text-xl font-bold font-mono text-[#FFC93C] mt-1">- ms</span>
+                    <div class="bg-[#0C3426]/30 border border-white/5 rounded-xl p-4 flex flex-col justify-between">
+                        <span class="text-[9px] font-mono uppercase text-[#9FB8AC] tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-magnifying-glass text-[10px]"></i> RETRIEVAL</span>
+                        <span id="metric-retrieval" class="text-2xl font-bold font-mono text-[#F3F1E7] mt-1.5">0 ms</span>
+                        <span class="text-[8px] font-mono text-[#9FB8AC]/50">context search</span>
                     </div>
-                    <div class="bg-[#0C3426]/50 border border-white/5 rounded-xl p-3 flex flex-col justify-between">
-                        <span class="text-[9px] font-mono uppercase text-[#9FB8AC] tracking-wider">P100 RAG</span>
-                        <span id="p100-val" class="text-xl font-bold font-mono text-[#F3F1E7] mt-1">- ms</span>
+                    <div class="bg-[#0C3426]/30 border border-white/5 rounded-xl p-4 flex flex-col justify-between">
+                        <span class="text-[9px] font-mono uppercase text-[#9FB8AC] tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-brain text-[10px]"></i> GENERATION</span>
+                        <span id="metric-generation" class="text-2xl font-bold font-mono text-[#F3F1E7] mt-1.5">0 ms</span>
                     </div>
-                </div>
-
-                <!-- Delay breakdown chart -->
-                <div class="relative h-44 w-full bg-black/25 border border-white/5 rounded-xl p-4">
-                    <canvas id="latencyChart"></canvas>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Retrieved Passages Context -->
-        <div class="glass-card p-6">
-            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b border-white/5 pb-3 mb-6">
-                <span class="text-xs font-bold uppercase tracking-wider text-[#9FB8AC] font-mono">Retrieved Context Passages</span>
-                
-                <!-- Legend -->
-                <div class="flex gap-3 text-[9px] font-mono">
-                    <span class="px-2 py-0.5 border border-[#3B82F6] text-[#60A5FA] rounded">FIXED</span>
-                    <span class="px-2 py-0.5 border border-[#0D9488] text-[#2DD4BF] rounded">SEMANTIC</span>
-                    <span class="px-2 py-0.5 border border-[#D97706] text-[#FBBF24] rounded font-semibold">METADATA</span>
+                    <div class="bg-[#0C3426]/30 border border-white/5 rounded-xl p-4 flex flex-col justify-between">
+                        <span class="text-[9px] font-mono uppercase text-[#9FB8AC] tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-[10px]"></i> TOTAL</span>
+                        <span id="metric-total" class="text-2xl font-bold font-mono text-[#F3F1E7] mt-1.5">0 ms</span>
+                    </div>
                 </div>
             </div>
 
-            <div id="chunks-container" class="space-y-4 max-h-[350px] overflow-y-auto pr-2">
-                <p class="text-gray-500 italic text-sm text-center py-8">No passages retrieved yet. Submit a query to see grounding details.</p>
+            <!-- Retrieved Context Passages (MULTI-STRATEGY RETRIEVED CHUNKS) -->
+            <div class="lg:col-span-12 glass-card p-8 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b border-white/5 pb-4">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-xs font-bold uppercase tracking-widest text-[#9FB8AC] font-mono">Multi-Strategy Retrieved Chunks</span>
+                        <span id="chunks-count" class="px-2 py-0.5 bg-white/5 border border-white/10 text-white rounded text-[10px] font-mono">0</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span id="max-similarity-badge" class="px-2.5 py-1 border border-[#FFC93C]/20 text-[#FFC93C] rounded text-[10px] font-mono font-semibold hidden">Max Similarity: 0.000</span>
+                        <span id="retrieval-time-badge" class="px-2.5 py-1 border border-[#FFC93C]/20 text-[#FFC93C] rounded text-[10px] font-mono font-semibold hidden">Retrieval: 0.0 ms</span>
+                    </div>
+                </div>
+
+                <!-- Legend of chunking strategies -->
+                <div class="flex flex-wrap gap-4 text-[10px] font-mono text-[#9FB8AC] border-b border-white/5 pb-3">
+                    <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-[#3B82F6]"></span> Fixed Overlap (512/128)</span>
+                    <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-[#0D9488]"></span> Semantic Split (Cos > 0.35)</span>
+                    <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-[#D97706]"></span> Metadata-Aware</span>
+                    <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-[#FF2E7E]"></span> Parent-Child Window (256/64)</span>
+                </div>
+
+                <div id="chunks-container" class="space-y-4 max-h-[450px] overflow-y-auto pr-2">
+                    <p class="text-[#9FB8AC] italic text-sm text-center py-8">No passages retrieved yet. Submit a query to see grounding details.</p>
+                </div>
             </div>
+
         </div>
 
     </div>

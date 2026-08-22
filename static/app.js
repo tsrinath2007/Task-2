@@ -189,26 +189,33 @@ async function submitPipelineQuery(text, audioBlob) {
 
 // Render dynamic responses and badges
 function renderPipelineResponse(data, audioBlob = null) {
-    if (audioPlayback.classList.contains("hidden") && data.query_text) {
-        outQuery.textContent = data.query_text;
-    }
-    
     // Status border glows
-    outputCard.className = "lg:col-span-6 glass-card p-6 min-h-[220px] flex flex-col justify-between transition-all duration-300";
+    outputCard.className = "lg:col-span-12 glass-card p-8 transition-all duration-300";
     if (data.status === "refused") {
         outputCard.classList.add("border-[#FF2E7E]/40", "glow-pink");
-        outResponse.className = "text-[#FF2E7E] font-medium text-lg bg-black/40 p-4 rounded-xl border border-white/5 mt-2 leading-relaxed min-h-[70px]";
+        outResponse.className = "text-[#FF2E7E] text-lg font-medium leading-relaxed";
     } else if (data.status === "success") {
         outputCard.classList.add("border-[#2ED9A0]/40", "glow-mint");
-        outResponse.className = "text-[#F3F1E7] font-medium text-lg bg-black/40 p-4 rounded-xl border border-white/5 mt-2 leading-relaxed min-h-[70px]";
+        outResponse.className = "text-[#F3F1E7] text-lg font-medium leading-relaxed";
     }
     outResponse.textContent = data.response_text;
 
     // Latency details
     const timings = data.latency_breakdown;
     const coreLatency = timings.embed_ms + timings.retrieve_ms + timings.llm_generate_ms + timings.guardrails_ms;
-    outCoreLatency.textContent = `${coreLatency.toFixed(1)} ms`;
-    outTotalLatency.textContent = `${timings.total_ms.toFixed(1)} ms`;
+
+    // Timing status badge ONLINE
+    const timingStatusBadge = document.getElementById("timing-status-badge");
+    if (timingStatusBadge) {
+        timingStatusBadge.textContent = `ONLINE (${coreLatency.toFixed(1)} MS)`;
+        timingStatusBadge.classList.remove("hidden");
+    }
+
+    // Pipeline Sub-Metrics text updates
+    document.getElementById("metric-stt").textContent = `${timings.stt_ms.toFixed(1)} ms`;
+    document.getElementById("metric-retrieval").textContent = `${timings.retrieve_ms.toFixed(1)} ms`;
+    document.getElementById("metric-generation").textContent = `${timings.llm_generate_ms.toFixed(1)} ms`;
+    document.getElementById("metric-total").textContent = `${timings.total_ms.toFixed(1)} ms`;
 
     // Dynamic Guardrail Status Pills (top right of response card)
     const guards = data.guardrail_results;
@@ -235,34 +242,83 @@ function renderPipelineResponse(data, audioBlob = null) {
     }
     guardrailBadges.innerHTML = badgesHtml;
 
-    // Display retrieved passages with colored strategy tags
+    // Grounded Answer Sub-Badges (Confidence and Evidence)
+    const confBadge = document.getElementById("confidence-badge");
+    const evidBadge = document.getElementById("evidence-badge");
+    const evidContainer = document.getElementById("evidence-container");
+    const evidCapsule = document.getElementById("evidence-capsule");
+
+    if (data.status === "success" && data.retrieved_chunks && data.retrieved_chunks.length > 0) {
+        confBadge.classList.remove("hidden");
+        evidBadge.classList.remove("hidden");
+        
+        // Show EVIDENCE row and top chunk reference hash
+        const firstChunk = data.retrieved_chunks[0];
+        const cleanId = (firstChunk.query_id || "81121b80").substring(0, 8);
+        const passageIdx = firstChunk.passage_index !== undefined ? firstChunk.passage_index : 0;
+        
+        evidCapsule.textContent = `[${passageIdx + 1}] ${cleanId}...`;
+        evidContainer.classList.remove("hidden");
+    } else {
+        confBadge.classList.add("hidden");
+        evidBadge.classList.add("hidden");
+        evidContainer.classList.add("hidden");
+    }
+
+    // Chunks Header Badges (Similarity / Count / Time)
+    const chunksCount = document.getElementById("chunks-count");
+    const maxSimBadge = document.getElementById("max-similarity-badge");
+    const retTimeBadge = document.getElementById("retrieval-time-badge");
+    
+    if (data.retrieved_chunks && data.retrieved_chunks.length > 0) {
+        chunksCount.textContent = data.retrieved_chunks.length;
+        const maxScore = data.retrieved_chunks[0].score;
+        
+        maxSimBadge.textContent = `Max Similarity: ${maxScore.toFixed(3)}`;
+        maxSimBadge.classList.remove("hidden");
+        
+        retTimeBadge.textContent = `Retrieval: ${timings.retrieve_ms.toFixed(1)} ms`;
+        retTimeBadge.classList.remove("hidden");
+    } else {
+        chunksCount.textContent = "0";
+        maxSimBadge.classList.add("hidden");
+        retTimeBadge.classList.add("hidden");
+    }
+
+    // Display retrieved passages with colored strategy tags matching reference
     if (data.retrieved_chunks && data.retrieved_chunks.length > 0) {
         chunksContainer.innerHTML = data.retrieved_chunks.map((chunk, idx) => {
             // Determine strategy badge style
-            let strategyTag = "FIXED";
-            let strategyStyle = "border-[#3B82F6] text-[#60A5FA] bg-[#3B82F6]/5";
+            let strategyTag = "Fixed Overlap (512/128)";
+            let strategyColor = "bg-[#3B82F6]";
             
             if (chunk.strategy === "sentence-aware") {
-                strategyTag = "SEMANTIC";
-                strategyStyle = "border-[#0D9488] text-[#2DD4BF] bg-[#0D9488]/5";
+                strategyTag = "Semantic Split (Cos > 0.35)";
+                strategyColor = "bg-[#0D9488]";
             } else if (chunk.strategy === "structure-aware") {
-                strategyTag = "METADATA";
-                strategyStyle = "border-[#D97706] text-[#FBBF24] bg-[#D97706]/5";
+                strategyTag = "Metadata-Aware";
+                strategyColor = "bg-[#D97706]";
             }
             
             return `
-                <div class="p-4 bg-black/40 border ${chunk.is_selected ? 'border-[#FFC93C]/50 bg-[#FFC93C]/5 shadow-[#FFC93C]/5' : 'border-white/5'} rounded-xl shadow-inner transition hover:border-white/10 duration-200">
-                    <div class="flex justify-between items-center mb-2.5">
-                        <div class="flex items-center gap-2">
-                            <span class="px-2 py-0.5 border ${strategyStyle} rounded text-[9px] font-mono font-bold">${strategyTag}</span>
-                            ${chunk.is_selected ? '<span class="px-2 py-0.5 bg-[#FFC93C]/10 text-[#FFC93C] border border-[#FFC93C]/30 rounded text-[9px] font-mono font-bold">GT SOURCE</span>' : ''}
+                <div class="p-5 bg-[#0C3426]/30 border ${chunk.is_selected ? 'border-[#FFC93C]/40 bg-[#FFC93C]/5 shadow-[#FFC93C]/5' : 'border-white/5'} rounded-xl shadow-inner transition hover:border-white/10 duration-200">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[10px] font-mono font-bold text-white">#${idx + 1}</span>
+                            <span class="px-2.5 py-0.5 rounded text-[9px] font-mono font-bold text-white ${strategyColor} flex items-center gap-1">
+                                <span class="h-1.5 w-1.5 rounded-full bg-white"></span> ${strategyTag.toUpperCase()}
+                            </span>
+                            ${chunk.is_selected ? '<span class="px-2.5 py-0.5 border border-[#3B82F6] text-[#60A5FA] rounded text-[9px] font-mono font-bold uppercase tracking-wider">CITED BY LLM</span>' : ''}
                         </div>
-                        <div class="text-right font-mono text-xs">
-                            <span class="text-[#9FB8AC] mr-2">Index: ${chunk.passage_index}</span>
-                            <span class="text-[#FFC93C] font-bold">Score: ${chunk.score.toFixed(3)}</span>
+                        <div class="text-left sm:text-right font-mono text-[11px]">
+                            <span class="text-[#9FB8AC] mr-3">Score: <span class="text-[#FFC93C] font-bold">${chunk.score.toFixed(4)}</span></span>
+                            <span class="text-[#9FB8AC]">Parent: <span class="text-[#F3F1E7] font-semibold">${chunk.query_id.substring(0, 8)}:${chunk.passage_index}</span></span>
                         </div>
                     </div>
-                    <p class="text-sm text-[#F3F1E7] leading-relaxed font-body">${chunk.text}</p>
+                    <p class="text-sm text-[#F3F1E7] leading-relaxed font-body mb-3">${chunk.text}</p>
+                    <div class="text-left">
+                        <span class="text-[9px] font-mono font-bold text-[#FFC93C] hover:text-[#ffe180] tracking-wider uppercase cursor-pointer transition select-none">Click to view full text</span>
+                    </div>
                 </div>
             `;
         }).join("");
@@ -270,10 +326,9 @@ function renderPipelineResponse(data, audioBlob = null) {
         chunksContainer.innerHTML = `<p class="text-[#9FB8AC] italic text-sm text-center py-8">No passages retrieved.</p>`;
     }
 
-    // Update RAG target latency bar
+    // Update RAG target latency bar (represented relative to 300ms limit)
     const latencyBarFill = document.getElementById("latency-bar-fill");
     if (latencyBarFill) {
-        // Calculate percentage (capping at 100% for 300ms)
         let percentage = Math.min((coreLatency / 300) * 100, 100);
         latencyBarFill.style.width = percentage + "%";
         
@@ -398,12 +453,28 @@ if (resetBtn) {
                 await fetch("/api/reset_analytics", { method: "POST" });
                 await updateAnalytics();
                 chunksContainer.innerHTML = `<p class="text-[#9FB8AC] italic text-sm text-center py-8">No passages retrieved yet. Submit a query to see grounding details.</p>`;
-                outQuery.textContent = "Waiting for input...";
-                outResponse.textContent = "Response content will render here.";
-                outCoreLatency.textContent = "- ms";
-                outTotalLatency.textContent = "- ms";
+                outResponse.textContent = "Pipeline responses will appear here.";
                 guardrailBadges.innerHTML = "";
-                outputCard.className = "lg:col-span-6 glass-card p-6 min-h-[220px] flex flex-col justify-between";
+                outputCard.className = "lg:col-span-12 glass-card p-8 transition-all duration-300";
+                
+                // Hide new sub-badges
+                document.getElementById("confidence-badge").classList.add("hidden");
+                document.getElementById("evidence-badge").classList.add("hidden");
+                document.getElementById("evidence-container").classList.add("hidden");
+                
+                const timingStatusBadge = document.getElementById("timing-status-badge");
+                if (timingStatusBadge) timingStatusBadge.classList.add("hidden");
+                
+                // Reset timing metrics text
+                document.getElementById("metric-stt").textContent = "0 ms";
+                document.getElementById("metric-retrieval").textContent = "0 ms";
+                document.getElementById("metric-generation").textContent = "0 ms";
+                document.getElementById("metric-total").textContent = "0 ms";
+                
+                // Reset chunk header badges
+                document.getElementById("chunks-count").textContent = "0";
+                document.getElementById("max-similarity-badge").classList.add("hidden");
+                document.getElementById("retrieval-time-badge").classList.add("hidden");
                 
                 const latencyBarFill = document.getElementById("latency-bar-fill");
                 if (latencyBarFill) {

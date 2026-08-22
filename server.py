@@ -47,8 +47,10 @@ def get_percentile(data, q):
         return 0.0
     return float(np.percentile(data, q))
 
-@app.post("/api/query")
-@app.post("/query")
+@app.api_route("/api/query", methods=["GET", "POST", "OPTIONS"])
+@app.api_route("/query", methods=["GET", "POST", "OPTIONS"])
+@app.api_route("/api/query/", methods=["GET", "POST", "OPTIONS"])
+@app.api_route("/api/index.py", methods=["GET", "POST", "OPTIONS"])
 async def query_endpoint(
     query_text: Optional[str] = Form(None),
     strategy: str = Form("sentence-aware"),
@@ -76,8 +78,8 @@ async def query_endpoint(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Pipeline error: {str(e)}")
 
-@app.get("/api/analytics")
-@app.get("/analytics")
+@app.api_route("/api/analytics", methods=["GET", "POST", "OPTIONS"])
+@app.api_route("/analytics", methods=["GET", "POST", "OPTIONS"])
 async def get_analytics():
     log_file = "latency_logs.json"
     if not os.path.exists(log_file):
@@ -154,8 +156,8 @@ async def get_analytics():
         "raw_logs": logs[-10:]  # Return last 10 entries for log table display
     }
 
-@app.post("/api/reset_analytics")
-@app.post("/reset_analytics")
+@app.api_route("/api/reset_analytics", methods=["GET", "POST", "OPTIONS"])
+@app.api_route("/reset_analytics", methods=["GET", "POST", "OPTIONS"])
 async def reset_analytics():
     log_file = "latency_logs.json"
     if os.path.exists(log_file):
@@ -170,8 +172,8 @@ class TranslateRequest(BaseModel):
     text: str
     target_lang: str
 
-@app.post("/api/translate")
-@app.post("/translate")
+@app.api_route("/api/translate", methods=["GET", "POST", "OPTIONS"])
+@app.api_route("/translate", methods=["GET", "POST", "OPTIONS"])
 def translate_text(req: TranslateRequest):
     from dotenv import load_dotenv
     import requests

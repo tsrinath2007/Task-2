@@ -99,16 +99,14 @@ class RAGPipeline:
                 response.raise_for_status()
                 res_data = response.json()
                 text = res_data.get("text", "").strip()
-                if text:
-                    return text
+                return text if text else "No speech detected in audio."
             except Exception as e:
                 print(f"Groq transcription failed: {e}. Trying ElevenLabs...")
 
         # 2. Fallback to ElevenLabs STT
         api_key = os.getenv("ELEVENLABS_API_KEY")
         if not api_key or "your_" in api_key or "placeholder" in api_key:
-            # Local fallback for demoing if both keys fail
-            return "What is the capital of India?"
+            return "No speech detected in audio."
 
         url = "https://api.elevenlabs.io/v1/speech-to-text"
         headers = {
@@ -125,11 +123,11 @@ class RAGPipeline:
             response = requests.post(url, headers=headers, files=files, data=data, timeout=20)
             response.raise_for_status()
             res_data = response.json()
-            return res_data.get("text", "").strip()
+            text = res_data.get("text", "").strip()
+            return text if text else "No speech detected in audio."
         except Exception as e:
             print(f"ElevenLabs transcription failed: {e}")
-            # Local fallback to keep it working for the demo
-            return "What is the capital of India?"
+            return "No speech detected in audio."
 
     def get_query_embedding(self, query_text: str) -> np.ndarray:
         """Retrieves or simulates embeddings for the input query."""

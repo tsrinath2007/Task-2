@@ -50,8 +50,8 @@ function setupSpeechRecognition() {
     if (SpeechRecognition) {
         try {
             speechRecognizer = new SpeechRecognition();
-            speechRecognizer.continuous = true;
-            speechRecognizer.interimResults = true;
+            speechRecognizer.continuous = false;
+            speechRecognizer.interimResults = false;
             
             const languageSelect = document.getElementById("language-select");
             speechRecognizer.lang = languageSelect ? languageSelect.value : "en-US";
@@ -65,13 +65,13 @@ function setupSpeechRecognition() {
             }
 
             speechRecognizer.onresult = (event) => {
-                let current = "";
-                for (let i = 0; i < event.results.length; i++) {
-                    current += event.results[i][0].transcript + " ";
-                }
-                if (current.trim()) {
-                    liveSpeechTranscript = current.trim();
-                    if (queryTextInput) queryTextInput.value = liveSpeechTranscript;
+                if (event.results && event.results.length > 0) {
+                    const transcript = event.results[0][0].transcript.trim();
+                    if (transcript) {
+                        liveSpeechTranscript = transcript;
+                        if (queryTextInput) queryTextInput.value = transcript;
+                        stopRecording();
+                    }
                 }
             };
 

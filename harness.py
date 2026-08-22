@@ -674,8 +674,8 @@ Answer concisely in the same language as the user's query (usually Hindi or Engl
 
         # 3. Multilingual Greetings & Introductions Handler (Hindi, Telugu, Tamil, Kannada, Malayalam, English)
         lower_q = query_text.lower()
-        greeting_patterns = ["my name is", "mera naam", "maa peru", "en peyar", "nanna hesaru", "my name", "namaste", "hello", "hi"]
-        is_greeting = any(pattern in lower_q for pattern in greeting_patterns) or ("srinath" in lower_q or "syna" in lower_q or "sýna" in lower_q)
+        greeting_patterns = [r"\bmy name is\b", r"\bmera naam\b", r"\bmaa peru\b", r"\ben peyar\b", r"\bnanna hesaru\b", r"\bmy name\b", r"\bnamaste\b", r"\bhello\b", r"\bhi\b", r"\bhey\b"]
+        is_greeting = any(re.search(pat, lower_q) for pat in greeting_patterns) or ("srinath" in lower_q or "syna" in lower_q or "sýna" in lower_q)
 
         if is_greeting:
             name = "Srinath" if ("srinath" in lower_q or "syna" in lower_q or "sýna" in lower_q) else "there"

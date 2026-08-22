@@ -1,24 +1,16 @@
 {
-  "version": 2,
-  "functions": {
-    "server.py": {
-      "includeFiles": "vector_index.npz"
-    }
-  },
-  "builds": [
+  "rewrites": [
     {
-      "src": "server.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/static/(.*)",
-      "dest": "/static/$1"
+      "source": "/static/(.*)",
+      "destination": "/static/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "server.py"
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/static/index.html"
     }
   ]
 }

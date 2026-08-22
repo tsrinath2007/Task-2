@@ -216,17 +216,9 @@ TEXT:
     except Exception as e:
         return {"translated_text": f"Translation failed: {str(e)}"}
 
-@app.get("/", response_class=HTMLResponse)
-async def read_root():
-    static_index = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "index.html")
-    if os.path.exists(static_index):
-        with open(static_index, "r", encoding="utf-8") as f:
-            return HTMLResponse(content=f.read())
-    return HTMLResponse(content="<h1>Voice RAG Dashboard Running</h1>")
-
 # Mount static folder
 os.makedirs("static", exist_ok=True)
-app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")), name="static")
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn

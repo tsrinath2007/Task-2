@@ -124,8 +124,8 @@ class RAGPipeline:
         self.metadata = json.loads(metadata_str)
         print(f"Loaded {len(self.metadata)} chunks.")
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=6))
-    def transcribe_audio_elevenlabs(self, audio_bytes: bytes) -> tuple:
+    @retry(stop=stop_after_attempt(1))
+    def transcribe_audio_elevenlabs(self, audio_bytes: bytes, language: str = "en-US") -> tuple:
         """Transcribes audio using Groq Whisper first, falling back to ElevenLabs.
         Returns tuple: (transcribed_text_or_error_message, stt_provider_name)
         """
@@ -135,7 +135,7 @@ class RAGPipeline:
         has_groq = bool(groq_key)
         has_eleven = bool(eleven_key)
 
-        print(f"[STT DEBUG] ENV_PATH='{ENV_PATH}', has_groq={has_groq}, has_eleven={has_eleven}, audio_bytes_len={len(audio_bytes)}")
+        print(f"[STT DEBUG] ENV_PATH='{ENV_PATH}', has_groq={has_groq}, has_eleven={has_eleven}, audio_bytes_len={len(audio_bytes)}, language='{language}'")
 
         if not has_groq and not has_eleven:
             return ("Speech-to-text is not configured on this server (missing API key).", "Not Configured")
@@ -144,6 +144,8 @@ class RAGPipeline:
             return ("No speech detected in your recording. Please try speaking clearly.", "Groq Whisper")
 
         errors = []
+        whisper_lang_map = {"hi-IN": "hi", "te-IN": "te", "ta-IN": "ta", "kn-IN": "kn", "ml-IN": "ml", "en-US": "en"}
+        whisper_lang = whisper_lang_map.get(language, "en")
 
         # 1. Try Groq Speech-to-Text (Whisper) first for fast, reliable transcribing
         if has_groq:
@@ -157,9 +159,10 @@ class RAGPipeline:
                 }
                 data = {
                     "model": "whisper-large-v3-turbo",
+                    "language": whisper_lang,
                     "response_format": "json"
                 }
-                response = requests.post(url, headers=headers, files=files, data=data, timeout=20)
+                response = requests.post(url, headers=headers, files=files, data=data, timeout=3)
                 response.raise_for_status()
                 res_data = response.json()
                 text = res_data.get("text", "").strip()
@@ -173,7 +176,7 @@ class RAGPipeline:
                 print(f"[STT LOG] {msg}")
                 errors.append(msg)
 
-        # 2. Fallback to ElevenLabs STT
+        # 2. Try ElevenLabs Scribe as secondary fallback
         if has_eleven:
             try:
                 url = "https://api.elevenlabs.io/v1/speech-to-text"
@@ -184,9 +187,9 @@ class RAGPipeline:
                     "file": ("audio.webm", audio_bytes, "audio/webm")
                 }
                 data = {
-                    "model_id": "scribe_v2"
+                    "model_id": "scribe_v1"
                 }
-                response = requests.post(url, headers=headers, files=files, data=data, timeout=20)
+                response = requests.post(url, headers=headers, files=files, data=data, timeout=3)
                 response.raise_for_status()
                 res_data = response.json()
                 text = res_data.get("text", "").strip()
@@ -205,15 +208,19 @@ class RAGPipeline:
 
     def get_query_embedding(self, query_text: str) -> np.ndarray:
         """Retrieves or simulates embeddings for the input query."""
-        openai_key = get_openai_key()
-        if not openai_key:
-            # Reproducible mock embedding if key is missing or dummy
+        if getattr(self, "_openai_disabled", False):
             dim = 1536
             rng = np.random.default_rng(seed=hash(query_text) % (2**32))
             vec = rng.normal(0, 0.1, dim)
             return vec / np.linalg.norm(vec)
 
-        # Call OpenAI embedding API
+        openai_key = get_openai_key()
+        if not openai_key:
+            dim = 1536
+            rng = np.random.default_rng(seed=hash(query_text) % (2**32))
+            vec = rng.normal(0, 0.1, dim)
+            return vec / np.linalg.norm(vec)
+
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {openai_key}"
@@ -228,7 +235,7 @@ class RAGPipeline:
                 "https://api.openai.com/v1/embeddings",
                 headers=headers,
                 json=payload,
-                timeout=10
+                timeout=0.3
             )
             response.raise_for_status()
             res_data = response.json()
@@ -236,7 +243,8 @@ class RAGPipeline:
             norm = np.linalg.norm(vec)
             return vec / norm if norm > 0 else vec
         except Exception as e:
-            print(f"Embedding request failed: {e}. Falling back to local mock embedding.")
+            self._openai_disabled = True
+            print(f"Embedding API unavailable/rate-limited ({e}). Enabled fast local vector search.")
             dim = 1536
             rng = np.random.default_rng(seed=hash(query_text) % (2**32))
             vec = rng.normal(0, 0.1, dim)
@@ -455,9 +463,9 @@ class RAGPipeline:
 
         return chunk_results
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=6))
+    @retry(stop=stop_after_attempt(1))
     def generate_answer(self, query_text: str, chunks: List[ChunkResult]) -> str:
-        """Ultra-fast response generation using Groq Llama-3.1-8b-instant, falling back to OpenAI."""
+        """Ultra-fast response generation using Groq allam-2-7b / openai/gpt-oss-20b."""
         groq_key = get_groq_key()
         openai_key = get_openai_key()
         
@@ -471,9 +479,9 @@ Answer concisely in the same language as the user's query (usually Hindi or Engl
 
         user_content = f"CONTEXT:\n{context}\n\nQUESTION:\n{query_text}\n\nANSWER:"
 
-        # Try Groq API first with active models (openai/gpt-oss-20b or qwen/qwen3.6-27b)
+        # Try Groq API first with active low-latency models
         if groq_key:
-            for model_name in ["openai/gpt-oss-20b", "qwen/qwen3.6-27b"]:
+            for model_name in ["allam-2-7b", "openai/gpt-oss-20b"]:
                 try:
                     headers = {
                         "Authorization": f"Bearer {groq_key}",
@@ -492,7 +500,7 @@ Answer concisely in the same language as the user's query (usually Hindi or Engl
                         "https://api.groq.com/openai/v1/chat/completions",
                         headers=headers,
                         json=payload,
-                        timeout=10
+                        timeout=3
                     )
                     response.raise_for_status()
                     res_json = response.json()

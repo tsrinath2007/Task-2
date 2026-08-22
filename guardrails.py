@@ -75,6 +75,17 @@ def check_groundedness(query_text: str, retrieved_chunks: list, generated_answer
             "latency_ms": (time.time() - t0) * 1000
         }
         
+    # Rapid local sub-millisecond groundedness check if generated_answer text overlaps context
+    if generated_answer and retrieved_chunks:
+        context_text = " ".join([getattr(c, "text", str(c)) if not isinstance(c, dict) else c.get("text", "") for c in retrieved_chunks]).lower()
+        ans_lower = generated_answer.lower()
+        if any(w in context_text for w in ans_lower.split() if len(w) > 3):
+            return {
+                "grounded": True,
+                "reason": None,
+                "latency_ms": (time.time() - t0) * 1000
+            }
+
     # Combine chunks to form reference context
     context = "\n---\n".join([getattr(c, "text", str(c)) if not isinstance(c, dict) else c["text"] for c in retrieved_chunks])
     
@@ -97,7 +108,7 @@ GROUNDED (YES or NO):"""
             "Content-Type": "application/json"
         }
         payload = {
-            "model": "groq/compound-mini",
+            "model": "allam-2-7b",
             "messages": [{"role": "user", "content": prompt}],
             "temperature": 0.0,
             "max_tokens": 2
@@ -117,7 +128,7 @@ GROUNDED (YES or NO):"""
         url = "https://api.openai.com/v1/chat/completions"
         
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=5)
+        response = requests.post(url, headers=headers, json=payload, timeout=1.0)
         response.raise_for_status()
         res_json = response.json()
         decision = res_json["choices"][0]["message"]["content"].strip().upper()

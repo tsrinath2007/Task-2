@@ -194,7 +194,7 @@ function renderPipelineResponse(data, audioBlob = null) {
     }
     
     // Status border glows
-    outputCard.className = "glass-card p-6 min-h-[220px] flex flex-col justify-between transition-all duration-300";
+    outputCard.className = "lg:col-span-6 glass-card p-6 min-h-[220px] flex flex-col justify-between transition-all duration-300";
     if (data.status === "refused") {
         outputCard.classList.add("border-[#FF2E7E]/40", "glow-pink");
         outResponse.className = "text-[#FF2E7E] font-medium text-lg bg-black/40 p-4 rounded-xl border border-white/5 mt-2 leading-relaxed min-h-[70px]";
@@ -403,7 +403,7 @@ if (resetBtn) {
                 outCoreLatency.textContent = "- ms";
                 outTotalLatency.textContent = "- ms";
                 guardrailBadges.innerHTML = "";
-                outputCard.className = "glass-card p-6 min-h-[220px] flex flex-col justify-between";
+                outputCard.className = "lg:col-span-6 glass-card p-6 min-h-[220px] flex flex-col justify-between";
                 
                 const latencyBarFill = document.getElementById("latency-bar-fill");
                 if (latencyBarFill) {

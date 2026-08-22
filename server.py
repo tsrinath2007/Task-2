@@ -9,6 +9,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 
+from dotenv import load_dotenv
+
+ENV_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+load_dotenv(ENV_PATH, override=True)
+
 # Import Pipeline
 from harness import RAGPipeline
 

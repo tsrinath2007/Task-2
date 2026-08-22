@@ -107,11 +107,13 @@ class RAGPipeline:
         Returns tuple: (transcribed_text_or_error_message, stt_provider_name)
         """
         load_dotenv(ENV_PATH, override=True)
-        groq_key = os.getenv("GROQ_API_KEY")
-        eleven_key = os.getenv("ELEVENLABS_API_KEY")
+        groq_key = os.getenv("GROQ_API_KEY") or os.environ.get("GROQ_API_KEY")
+        eleven_key = os.getenv("ELEVENLABS_API_KEY") or os.environ.get("ELEVENLABS_API_KEY")
 
         has_groq = bool(groq_key and "your_" not in groq_key and "placeholder" not in groq_key)
         has_eleven = bool(eleven_key and "your_" not in eleven_key and "placeholder" not in eleven_key)
+
+        print(f"[STT DEBUG] ENV_PATH='{ENV_PATH}', has_groq={has_groq}, has_eleven={has_eleven}")
 
         if not has_groq and not has_eleven:
             return ("Speech-to-text is not configured on this server (missing API key).", "Not Configured")

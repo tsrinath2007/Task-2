@@ -545,7 +545,8 @@ Answer concisely in the same language as the user's query (usually Hindi or Engl
         query_text: Optional[str] = None,
         audio_bytes: Optional[bytes] = None,
         strategy: str = "sentence-aware",
-        off_topic_threshold: float = 0.35
+        off_topic_threshold: float = 0.35,
+        language: str = "en-US"
     ) -> RAGResponse:
         """Executes the end-to-end voice/text RAG pipeline with timers and guardrails."""
         t_pipeline_start = time.time()
@@ -562,7 +563,7 @@ Answer concisely in the same language as the user's query (usually Hindi or Engl
         if audio_bytes:
             t0 = time.time()
             try:
-                (query_text, stt_provider) = self.transcribe_audio_elevenlabs(audio_bytes)
+                (query_text, stt_provider) = self.transcribe_audio_elevenlabs(audio_bytes, language=language)
                 stt_ms = (time.time() - t0) * 1000
             except Exception as e:
                 pipeline_total = (time.time() - t_pipeline_start) * 1000
@@ -620,6 +621,38 @@ Answer concisely in the same language as the user's query (usually Hindi or Engl
                     off_topic=False,
                     grounded=False
                 ),
+                chunking_strategy_used=strategy
+            )
+
+        # 3. Multilingual Greetings & Introductions Handler (Hindi, Telugu, Tamil, Kannada, Malayalam, English)
+        lower_q = query_text.lower()
+        greeting_patterns = ["my name is", "mera naam", "maa peru", "en peyar", "nanna hesaru", "my name", "namaste", "hello", "hi"]
+        is_greeting = any(pattern in lower_q for pattern in greeting_patterns) or ("srinath" in lower_q or "syna" in lower_q or "sýna" in lower_q)
+
+        if is_greeting:
+            name = "Srinath" if ("srinath" in lower_q or "syna" in lower_q or "sýna" in lower_q) else "there"
+            
+            if language == "hi-IN" or "naam" in lower_q or "namaste" in lower_q:
+                greeting_text = f"नमस्ते {name}! आपसे मिलकर बहुत खुशी हुई। आज मैं आपकी क्या सहायता कर सकता हूँ?"
+            elif language == "te-IN" or "peru" in lower_q:
+                greeting_text = f"నమస్తే {name}! మిమ్మల్ని కలిసినందుకు సంతోషంగా ఉంది. ఈరోజు నేను మీకు ఎలా సహాయపడగలను?"
+            elif language == "ta-IN" or "peyar" in lower_q:
+                greeting_text = f"வணக்கம் {name}! உங்களை சந்தித்ததில் மகிழ்ச்சி. இன்று நான் உங்களுக்கு எவ்வாறு உதவ முடியும்?"
+            elif language == "kn-IN" or "hesaru" in lower_q:
+                greeting_text = f"ನಮಸ್ಕಾರ {name}! ನಿಮ್ಮನ್ನು ಭೇಟಿಯಾಗಿದ್ದಕ್ಕೆ ಸಂತೋಷವಾಗಿದೆ. ಇಂದು ನಾನು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ?"
+            elif language == "ml-IN":
+                greeting_text = f"നമസ്കാരം {name}! നിങ്ങളെ കണ്ടുമുട്ടിയതിൽ സന്തോഷം. ഇന്ന് ഞാൻ നിങ്ങളെ എങ്ങനെ സഹായിക്കും?"
+            else:
+                greeting_text = f"Hello {name}! Wonderful to meet you. How can I help you today?"
+
+            pipeline_total = (time.time() - t_pipeline_start) * 1000
+            return RAGResponse(
+                query_text=query_text,
+                response_text=greeting_text,
+                status="success",
+                latency_breakdown=LatencyBreakdown(stt_ms=stt_ms, total_ms=pipeline_total, stt_provider=stt_provider),
+                retrieved_chunks=[],
+                guardrail_results=GuardrailResults(safe=True, off_topic=False, grounded=True),
                 chunking_strategy_used=strategy
             )
 

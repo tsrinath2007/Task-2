@@ -52,6 +52,7 @@ async def query_endpoint(
     query_text: Optional[str] = Form(None),
     strategy: str = Form("sentence-aware"),
     off_topic_threshold: float = Form(0.35),
+    language: str = Form("en-US"),
     file: Optional[UploadFile] = File(None)
 ):
     if not pipeline or pipeline.embeddings is None:
@@ -60,14 +61,15 @@ async def query_endpoint(
     audio_bytes = None
     if file:
         audio_bytes = await file.read()
-        print(f"[SERVER DEBUG] Received audio upload: filename='{file.filename}', content_type='{file.content_type}', size={len(audio_bytes)} bytes")
+        print(f"[SERVER DEBUG] Received audio upload: filename='{file.filename}', content_type='{file.content_type}', size={len(audio_bytes)} bytes, language='{language}'")
 
     try:
         response = pipeline.run_pipeline(
             query_text=query_text,
             audio_bytes=audio_bytes,
             strategy=strategy,
-            off_topic_threshold=off_topic_threshold
+            off_topic_threshold=off_topic_threshold,
+            language=language
         )
         return response
     except Exception as e:

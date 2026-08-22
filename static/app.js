@@ -231,9 +231,10 @@ async function submitPipelineQuery(text, audioBlob) {
     outResponse.innerHTML = `<div class="flex items-center gap-2 text-[#FFC93C] font-semibold"><i class="fa-solid fa-spinner animate-spin"></i> Analyzing pipeline path...</div>`;
     guardrailBadges.innerHTML = "";
     
-    const formData = new FormData();
-    formData.append("strategy", strategySelect.value);
-    formData.append("off_topic_threshold", thresholdInput.value);
+    const languageSelect = document.getElementById("language-select");
+    formData.append("strategy", strategySelect ? strategySelect.value : "sentence-aware");
+    formData.append("off_topic_threshold", thresholdInput ? thresholdInput.value : 0.35);
+    formData.append("language", languageSelect ? languageSelect.value : "en-US");
     
     if (text) {
         formData.append("query_text", text);
